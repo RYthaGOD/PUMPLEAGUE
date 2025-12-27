@@ -285,8 +285,7 @@ async function fetchWithRetry(url, options, retries = 3) {
 
 ## Support
 
-- **Twitter:** [@PumpLeague](https://twitter.com/pumpleague)
-- **Discord:** [discord.gg/pumpleague](https://discord.gg/pumpleague)
+- **Twitter:** @league_on_pump
 - **GitHub Issues:** [github.com/RYthaGOD/PUMPLEAGUE/issues](https://github.com/RYthaGOD/PUMPLEAGUE/issues)
 
 ---
