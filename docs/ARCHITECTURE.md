@@ -252,7 +252,285 @@ GET  /api/stats           - Aggregate statistics
 
 ---
 
-### 7. Frontend (`public/`)
+### 7. API Authentication System (`db/api-keys.js`, `middleware/auth.js`)
+
+**Purpose:** Secure API access with tiered permissions
+
+#### API Key Tiers
+
+| Tier | Rate Limit | Permissions |
+|------|------------|-------------|
+| `public` | 100/hour | Read-only public endpoints |
+| `integration` | 1000/hour | Full API access, webhook management |
+| `admin` | 5000/hour | Key management, system configuration |
+
+#### Key Storage
+
+```sql
+CREATE TABLE api_keys (
+    key_id TEXT PRIMARY KEY,
+    key_hash TEXT NOT NULL,        -- SHA256 hash of API key
+    name TEXT NOT NULL,
+    tier TEXT NOT NULL,
+    rate_limit INTEGER DEFAULT 1000,
+    is_active INTEGER DEFAULT 1,
+    created_at INTEGER,
+    last_used_at INTEGER,
+    metadata TEXT                  -- JSON
+);
+
+CREATE TABLE api_usage (
+    id INTEGER PRIMARY KEY,
+    key_id TEXT,
+    endpoint TEXT,
+    method TEXT,
+    status_code INTEGER,
+    ip_address TEXT,
+    user_agent TEXT,
+    timestamp INTEGER
+);
+```
+
+#### Authentication Flow
+
+```
+Request → Extract X-API-Key header 
+        → Hash key with SHA256 
+        → Lookup in database 
+        → Check is_active 
+        → Check rate limit 
+        → Attach key details to request 
+        → Continue to route handler
+```
+
+#### Middleware Stack
+
+```javascript
+requireAuth(tier) = [
+    authenticateApiKey,   // Validate key exists and is active
+    requireTier(tier),    // Check permission tier
+    trackApiUsage         // Log request for analytics
+];
+```
+
+---
+
+### 8. Webhook System (`db/webhooks.js`, `utils/webhook-delivery.js`)
+
+**Purpose:** Real-time event notifications to external services
+
+#### Supported Events
+
+| Event | Trigger | Payload |
+|-------|---------|---------|
+| `round.started` | New round begins | Round ID, start time |
+| `round.completed` | Round finishes | Winners, totals, payouts |
+| `token.registered` | New token added | Token details |
+| `token.deactivated` | Token removed | Token mint, reason |
+| `payout.sent` | Payment executed | Holder, amount, tx signature |
+| `fraud.detected` | Suspicious activity | Token, flags, penalty |
+
+#### Webhook Registration
+
+```sql
+CREATE TABLE webhooks (
+    webhook_id TEXT PRIMARY KEY,
+    key_id TEXT NOT NULL,          -- Owner API key
+    url TEXT NOT NULL,
+    secret TEXT NOT NULL,          -- HMAC signing key
+    events TEXT NOT NULL,          -- JSON array
+    is_active INTEGER DEFAULT 1,
+    created_at INTEGER,
+    metadata TEXT
+);
+```
+
+#### Signature Verification
+
+All webhook payloads are signed with HMAC-SHA256:
+
+```javascript
+const signature = 'sha256=' + crypto
+    .createHmac('sha256', webhookSecret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+
+// Sent as X-Webhook-Signature header
+```
+
+#### Retry Policy
+
+```javascript
+const RETRY_SCHEDULE = [
+    0,           // Immediate
+    60 * 1000,   // 1 minute
+    5 * 60 * 1000,    // 5 minutes
+    30 * 60 * 1000,   // 30 minutes
+    2 * 60 * 60 * 1000 // 2 hours (final)
+];
+
+const MAX_ATTEMPTS = 5;
+```
+
+#### Delivery Tracking
+
+```sql
+CREATE TABLE webhook_deliveries (
+    id INTEGER PRIMARY KEY,
+    webhook_id TEXT,
+    event_type TEXT,
+    payload TEXT,              -- JSON
+    status TEXT,               -- pending, delivered, failed
+    http_status INTEGER,
+    attempts INTEGER DEFAULT 0,
+    error_message TEXT,
+    response_time_ms INTEGER,
+    created_at INTEGER,
+    last_attempt_at INTEGER
+);
+```
+
+#### Delivery Flow
+
+```
+Event Triggered 
+    → Get all webhooks subscribed to event type
+    → For each webhook:
+        → Generate payload with event data
+        → Sign with HMAC-SHA256
+        → POST to webhook URL
+        → Log delivery result
+        → If failed and attempts < 5:
+            → Queue for retry with backoff
+```
+
+---
+
+### 9. Smart Caching System (`utils/cache.js`)
+
+**Purpose:** Reduce external API calls while maintaining data freshness
+
+#### Cache Tiers
+
+| Cache Type | TTL | Max Size | Use Case |
+|------------|-----|----------|----------|
+| `marketData` | 30 seconds | 100 | Real-time prices, volume |
+| `metadata` | 1 hour | 500 | Token names, symbols |
+| `aiResponses` | 5 minutes | 50 | AI commentary |
+| `batchRequests` | 10 seconds | 20 | Deduplication |
+
+#### LRU Eviction
+
+When cache reaches max size, least recently used entries are evicted:
+
+```javascript
+evictLRU(cacheType) {
+    let oldestKey = null;
+    let oldestTime = Infinity;
+
+    for (const [key, entry] of cache.entries()) {
+        if (entry.lastAccess < oldestTime) {
+            oldestTime = entry.lastAccess;
+            oldestKey = key;
+        }
+    }
+
+    if (oldestKey) cache.delete(oldestKey);
+}
+```
+
+#### Cache Entry Structure
+
+```javascript
+{
+    value: <cached data>,
+    timestamp: 1703689200000,    // When cached
+    lastAccess: 1703689250000   // Last read time
+}
+```
+
+#### Statistics
+
+```javascript
+cache.getStats()
+// Returns:
+{
+    hits: 1250,
+    misses: 47,
+    evictions: 12,
+    hitRate: "96.4%",
+    sizes: {
+        marketData: 45,
+        metadata: 123,
+        aiResponses: 8,
+        batchRequests: 0
+    }
+}
+```
+
+#### Automatic Cleanup
+
+Background interval runs every 60 seconds to clear expired entries.
+
+---
+
+### 10. Waitlist System (`db/waitlist.js`)
+
+**Purpose:** Collect early access signups before public launch
+
+#### Schema
+
+```sql
+CREATE TABLE waitlist (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    twitter_handle TEXT NOT NULL UNIQUE,
+    wallet_address TEXT NOT NULL UNIQUE,
+    email TEXT,
+    user_type TEXT NOT NULL,        -- 'holder', 'creator', 'developer'
+    referral_code TEXT,
+    submitted_at INTEGER NOT NULL,
+    ip_address TEXT,
+    user_agent TEXT,
+    verified INTEGER DEFAULT 0,
+    notified INTEGER DEFAULT 0
+);
+
+CREATE INDEX idx_waitlist_submitted ON waitlist(submitted_at DESC);
+CREATE INDEX idx_waitlist_verified ON waitlist(verified, submitted_at DESC);
+```
+
+#### User Types
+
+| Type | Description |
+|------|-------------|
+| `holder` | Token holder interested in earning rewards |
+| `creator` | Token creator wanting to register tokens |
+| `developer` | Developer wanting API access |
+
+#### Functions
+
+```javascript
+// Add new signup
+addToWaitlist({ twitterHandle, walletAddress, email, userType, referralCode })
+
+// Get position in queue
+getWaitlistPosition(twitterHandle)  // Returns position number
+
+// Admin functions
+getWaitlistCount()
+getAllWaitlist(limit, offset)
+verifyEntry(id)
+markNotified(id)
+checkExists(twitterHandle, walletAddress)
+```
+
+#### Duplicate Prevention
+
+Unique constraints on both `twitter_handle` and `wallet_address` prevent duplicate signups.
+
+---
+
+### 11. Frontend (`public/`)
 
 #### `index.html`
 - Gladiator Arena themed UI
@@ -438,4 +716,4 @@ SELECT * FROM payouts WHERE round_id = 'R...';
 
 ---
 
-*Last Updated: 2025-12-25*
+*Last Updated: 2025-12-27*
