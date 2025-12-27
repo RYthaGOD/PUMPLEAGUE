@@ -1,0 +1,41 @@
+{
+  "name": "pumpleague",
+  "version": "1.0.0",
+  "description": "Complete PumpLeague Arena - Automated Token Competition Protocol",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "round": "node index.js --single",
+    "dry-run": "node index.js --dry-run",
+    "register": "node cli.js register",
+    "status": "node cli.js status",
+    "history": "node cli.js history",
+    "api": "node api/server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@solana/spl-token": "^0.3.8",
+    "@solana/web3.js": "^1.79.0",
+    "axios": "^1.6.0",
+    "bs58": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^5.2.1",
+    "gsap": "^3.14.2",
+    "openai": "^6.15.0",
+    "sql.js": "^1.8.0",
+    "twitter-api-v2": "^1.28.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "solana",
+    "pump.fun",
+    "token",
+    "competition",
+    "leaderboard"
+  ],
+  "author": "",
+  "license": "MIT"
+}

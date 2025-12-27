@@ -1,0 +1,305 @@
+<!-- Waitlist Form Section -->
+<section id="waitlist" class="waitlist-section">
+    <div class="iron-container">
+        <h2 class="section-title">
+            <span class="gold-text">JOIN THE</span> ARENA
+        </h2>
+        <p class="section-subtitle">Enter the waitlist to claim your place among the gladiators</p>
+
+        <div class="waitlist-form-container">
+            <form id="waitlist-form" class="waitlist-form">
+                <div class="form-group">
+                    <label for="twitter-handle">
+                        <span class="label-icon">𝕏</span>
+                        Twitter Handle
+                    </label>
+                    <input type="text" id="twitter-handle" name="twitterHandle" placeholder="@YourHandle" required
+                        pattern="^@?[A-Za-z0-9_]{1,15}$">
+                    <span class="input-hint">Your Twitter handle (e.g., @warrior123)</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="wallet-address">
+                        <span class="label-icon">👛</span>
+                        Solana Wallet Address
+                    </label>
+                    <input type="text" id="wallet-address" name="walletAddress" placeholder="Your Solana wallet address"
+                        required minlength="32" maxlength="44">
+                    <span class="input-hint">Your Solana wallet for rewards</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        <span class="label-icon">✉️</span>
+                        Email (Optional)
+                    </label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com">
+                    <span class="input-hint">Get notified when the arena opens</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="referral-code">
+                        <span class="label-icon">🎟️</span>
+                        Referral Code (Optional)
+                    </label>
+                    <input type="text" id="referral-code" name="referralCode" placeholder="Enter referral code">
+                    <span class="input-hint">Have a code? Enter it here</span>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span class="btn-text">ENTER THE ARENA</span>
+                    <span class="btn-icon">⚔️</span>
+                </button>
+            </form>
+
+            <!-- Success Message -->
+            <div id="waitlist-success" class="waitlist-message success-message" style="display: none;">
+                <div class="message-icon">🏆</div>
+                <h3>Welcome, Gladiator!</h3>
+                <p id="success-text">You've been added to the waitlist.</p>
+                <div class="position-display">
+                    <span class="position-label">Your Position:</span>
+                    <span id="waitlist-position" class="position-number">#0</span>
+                    <span class="position-total">of <span id="waitlist-total">0</span></span>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="waitlist-error" class="waitlist-message error-message" style="display: none;">
+                <div class="message-icon">⚠️</div>
+                <h3>Arena Entry Denied</h3>
+                <p id="error-text">Something went wrong.</p>
+                <button class="retry-btn" onclick="resetWaitlistForm()">Try Again</button>
+            </div>
+
+            <!-- Waitlist Stats -->
+            <div class="waitlist-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="total-gladiators">0</span>
+                    <span class="stat-label">Gladiators Waiting</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Waitlist Section Styles */
+    .waitlist-section {
+        padding: 80px 20px;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(20, 20, 20, 0.5) 100%);
+    }
+
+    .waitlist-form-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .waitlist-form {
+        background: rgba(30, 30, 30, 0.8);
+        border: 2px solid rgba(255, 215, 0, 0.3);
+        border-radius: 12px;
+        padding: 40px;
+        backdrop-filter: blur(10px);
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        color: #ffd700;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 14px;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .label-icon {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid rgba(255, 215, 0, 0.2);
+        border-radius: 8px;
+        color: #fff;
+        font-family: 'Outfit', sans-serif;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #ffd700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .form-group input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
+
+    .input-hint {
+        display: block;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 12px;
+        margin-top: 4px;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #8b0000 0%, #ff3333 100%);
+        border: 2px solid #ffd700;
+        border-radius: 8px;
+        color: #ffd700;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 18px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        background: linear-gradient(135deg, #a00000 0%, #ff4444 100%);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    .waitlist-message {
+        background: rgba(30, 30, 30, 0.9);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .success-message {
+        border: 2px solid rgba(50, 205, 50, 0.5);
+    }
+
+    .error-message {
+        border: 2px solid rgba(255, 51, 51, 0.5);
+    }
+
+    .message-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    .waitlist-message h3 {
+        color: #ffd700;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 24px;
+        margin-bottom: 12px;
+    }
+
+    .waitlist-message p {
+        color: rgba(255, 255, 255, 0.8);
+        font-family: 'Outfit', sans-serif;
+        margin-bottom: 20px;
+    }
+
+    .position-display {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .position-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .position-number {
+        display: inline-block;
+        color: #ffd700;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0 8px;
+    }
+
+    .position-total {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+    }
+
+    .retry-btn {
+        padding: 12px 24px;
+        background: rgba(255, 215, 0, 0.1);
+        border: 2px solid #ffd700;
+        border-radius: 6px;
+        color: #ffd700;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .retry-btn:hover {
+        background: rgba(255, 215, 0, 0.2);
+    }
+
+    .waitlist-stats {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .stat-item {
+        display: inline-block;
+        padding: 20px 40px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 8px;
+    }
+
+    .stat-value {
+        display: block;
+        color: #ffd700;
+        font-family: 'Cinzel Decorative', serif;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        display: block;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    @media (max-width: 768px) {
+        .waitlist-form {
+            padding: 24px;
+        }
+
+        .position-number {
+            font-size: 28px;
+        }
+    }
+</style>

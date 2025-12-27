@@ -1,0 +1,1391 @@
+/* ========================================
+   PUMP LEAGUE - COLISEUM THEME
+   Gold & Crimson | Stone & Blood
+   ======================================== */
+
+/* === ROOT VARIABLES === */
+:root {
+    /* Colors - Gold */
+    --gold: #D4AF37;
+    --gold-light: #F4D03F;
+    --gold-dark: #B8860B;
+    --gold-glow: rgba(212, 175, 55, 0.4);
+
+    /* Colors - Crimson */
+    --crimson: #DC143C;
+    --crimson-dark: #8B0000;
+    --burgundy: #800020;
+    --blood: #660000;
+
+    /* Colors - Stone */
+    --stone-darkest: #0a0a0a;
+    --stone-dark: #1a1a1a;
+    --stone: #2a2a2a;
+    --stone-light: #3a3a3a;
+    --stone-lighter: #4a4a4a;
+
+    /* Colors - Accents */
+    --ivory: #FFFFF0;
+    --marble: #F5F5DC;
+    --bronze: #CD7F32;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #800020 100%);
+    --gradient-gold: linear-gradient(135deg, #B8860B 0%, #D4AF37 50%, #F4D03F 100%);
+    --gradient-crimson: linear-gradient(135deg, #660000 0%, #8B0000 50%, #DC143C 100%);
+    --gradient-stone: linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 100%);
+
+    /* Typography */
+    --font-display: 'Cinzel Decorative', serif;
+    --font-heading: 'Cinzel', serif;
+    --font-body: 'Outfit', sans-serif;
+
+    /* Spacing */
+    --section-padding: 120px 0;
+    --container-width: 1200px;
+
+    /* Effects */
+    --shadow-gold: 0 0 20px var(--gold-glow);
+    --shadow-crimson: 0 0 20px rgba(220, 20, 60, 0.3);
+    --shadow-deep: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+/* === RESET & BASE === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--stone-darkest);
+    color: var(--ivory);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* === NAVIGATION === */
+.coliseum-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--gold-dark);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.nav-container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.arena-crest {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--ivory);
+}
+
+.crest-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 0 10px var(--gold-glow));
+}
+
+.gold-text {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-links {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.nav-link {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--marble);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-gold);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--gold);
+    text-shadow: var(--shadow-gold);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.enlist-btn {
+    background: var(--gradient-crimson);
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: var(--ivory) !important;
+    box-shadow: var(--shadow-crimson);
+}
+
+.enlist-btn::after {
+    display: none;
+}
+
+.enlist-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(220, 20, 60, 0.5);
+}
+
+/* === SECTION 1: ENTRANCE GATES === */
+.entrance-gates {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: var(--gradient-hero);
+    overflow: hidden;
+    padding-top: 80px;
+}
+
+/* Stone Archway Effect */
+.stone-archway {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    pointer-events: none;
+}
+
+.arch-left,
+.arch-right {
+    position: absolute;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    background: linear-gradient(90deg, #2a2a2a 0%, transparent 100%);
+    opacity: 0.6;
+}
+
+.arch-left {
+    left: 0;
+    box-shadow: inset -20px 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.arch-right {
+    right: 0;
+    background: linear-gradient(-90deg, #2a2a2a 0%, transparent 100%);
+    box-shadow: inset 20px 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.entrance-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    max-width: 900px;
+    padding: 40px;
+}
+
+.imperial-seal {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
+    position: relative;
+}
+
+.seal-ring {
+    width: 100%;
+    height: 100%;
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    box-shadow: var(--shadow-gold), inset 0 0 20px rgba(212, 175, 55, 0.2);
+    animation: pulse-gold 3s ease-in-out infinite;
+}
+
+.seal-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-heading);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--gold);
+}
+
+@keyframes pulse-gold {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px var(--gold-glow), inset 0 0 20px rgba(212, 175, 55, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 40px var(--gold-glow), inset 0 0 30px rgba(212, 175, 55, 0.3);
+    }
+}
+
+.entrance-title {
+    margin-bottom: 60px;
+}
+
+.title-line {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: var(--marble);
+    margin-bottom: 10px;
+}
+
+.title-main {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 96px;
+    font-weight: 900;
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+    margin-bottom: 20px;
+    line-height: 1;
+}
+
+.title-subtitle {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 24px;
+    color: var(--crimson);
+    letter-spacing: 2px;
+}
+
+.entrance-stats {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    margin-bottom: 60px;
+}
+
+.stat-torch {
+    text-align: center;
+    position: relative;
+}
+
+.torch-flame {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    background: var(--gradient-gold);
+    border-radius: 50% 50% 0 0;
+    position: relative;
+    box-shadow: 0 0 30px var(--gold-glow);
+    animation: flicker 2s ease-in-out infinite;
+}
+
+.torch-flame::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 40px;
+    background: var(--gradient-crimson);
+    border-radius: 50% 50% 0 0;
+    opacity: 0.8;
+    animation: flicker 1.5s ease-in-out infinite reverse;
+}
+
+@keyframes flicker {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+.stat-value {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--gold);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--marble);
+    text-transform: uppercase;
+}
+
+.enter-arena-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 50px;
+    background: var(--gradient-crimson);
+    color: var(--ivory);
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-decoration: none;
+    border: 2px solid var(--crimson);
+    border-radius: 4px;
+    box-shadow: var(--shadow-crimson), var(--shadow-deep);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.enter-arena-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.enter-arena-btn:hover::before {
+    left: 100%;
+}
+
+.enter-arena-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 40px rgba(220, 20, 60, 0.6), var(--shadow-deep);
+}
+
+.btn-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.entrance-fog {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(0deg, rgba(26, 26, 26, 0.8) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+/* === SECTION 2: ARENA FLOOR === */
+.arena-floor {
+    min-height: 80vh;
+    position: relative;
+    background: var(--stone-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--section-padding);
+}
+
+.sand-texture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212, 175, 55, 0.03) 2px, rgba(212, 175, 55, 0.03) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(212, 175, 55, 0.03) 2px, rgba(212, 175, 55, 0.03) 4px);
+    opacity: 0.5;
+}
+
+.blood-stains {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 20% 30%, rgba(102, 0, 0, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(102, 0, 0, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(102, 0, 0, 0.1) 0%, transparent 60%);
+}
+
+.arena-content {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+}
+
+.arena-decree {
+    background: rgba(26, 26, 26, 0.9);
+    border: 2px solid var(--gold-dark);
+    border-radius: 8px;
+    padding: 60px;
+    box-shadow: var(--shadow-deep), inset 0 0 40px rgba(212, 175, 55, 0.05);
+    position: relative;
+}
+
+.arena-decree::before,
+.arena-decree::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--gold);
+}
+
+.arena-decree::before {
+    top: -2px;
+    left: -2px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.arena-decree::after {
+    bottom: -2px;
+    right: -2px;
+    border-left: none;
+    border-top: none;
+}
+
+.decree-scroll {
+    text-align: center;
+}
+
+.decree-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    color: var(--gold);
+    margin-bottom: 30px;
+    text-shadow: var(--shadow-gold);
+}
+
+.decree-text {
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--marble);
+    margin-bottom: 40px;
+}
+
+.decree-seal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding-top: 30px;
+    border-top: 1px solid var(--gold-dark);
+}
+
+.seal-symbol {
+    font-size: 32px;
+    filter: drop-shadow(0 0 10px var(--gold-glow));
+}
+
+.seal-motto {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--gold);
+}
+
+/* === SECTION 3: GLADIATOR PREPARATION === */
+.gladiator-prep {
+    padding: var(--section-padding);
+    background: var(--gradient-stone);
+    position: relative;
+}
+
+.stone-wall-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        linear-gradient(90deg, rgba(42, 42, 42, 0.5) 1px, transparent 1px),
+        linear-gradient(rgba(42, 42, 42, 0.5) 1px, transparent 1px);
+    background-size: 100px 100px;
+    opacity: 0.3;
+}
+
+.prep-content {
+    position: relative;
+    z-index: 10;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.section-title {
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--gold);
+    margin-bottom: 80px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.title-icon {
+    font-size: 56px;
+    filter: drop-shadow(0 0 20px var(--gold-glow));
+}
+
+.title-underline {
+    width: 200px;
+    height: 3px;
+    background: var(--gradient-gold);
+    box-shadow: var(--shadow-gold);
+}
+
+.preparation-chambers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+}
+
+.chamber {
+    background: rgba(26, 26, 26, 0.8);
+    border: 2px solid var(--stone-light);
+    border-radius: 8px;
+    padding: 40px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.chamber.featured {
+    border-color: var(--gold);
+    box-shadow: 0 0 30px var(--gold-glow);
+    transform: scale(1.02);
+}
+
+.chamber:hover {
+    border-color: var(--gold-dark);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-deep);
+}
+
+.chamber-gate {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--stone-light);
+}
+
+.gate-icon {
+    font-size: 40px;
+    filter: drop-shadow(0 0 10px var(--gold-glow));
+}
+
+.gate-number {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: var(--gold-dark);
+    opacity: 0.3;
+}
+
+.chamber-title {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    color: var(--gold);
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+
+.chamber-desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--marble);
+    margin-bottom: 25px;
+}
+
+.chamber-details {
+    list-style: none;
+}
+
+.chamber-details li {
+    padding: 10px 0;
+    padding-left: 30px;
+    position: relative;
+    color: var(--ivory);
+    font-size: 14px;
+}
+
+.chamber-details li::before {
+    content: '⚔️';
+    position: absolute;
+    left: 0;
+    font-size: 16px;
+    filter: drop-shadow(0 0 5px var(--gold-glow));
+}
+
+.chamber-torch {
+    position: absolute;
+    width: 20px;
+    height: 60px;
+    background: var(--gradient-gold);
+    box-shadow: 0 0 20px var(--gold-glow);
+    animation: flicker 2s ease-in-out infinite;
+}
+
+.chamber-torch.left {
+    left: -10px;
+    top: 40px;
+    border-radius: 10px 0 0 10px;
+}
+
+.chamber-torch.right {
+    right: -10px;
+    top: 40px;
+    border-radius: 0 10px 10px 0;
+}
+
+/* === SECTION 4: BATTLE ARENA (WARBOARD) === */
+.battle-arena {
+    padding: var(--section-padding);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(26, 26, 26, 0.8) 0%, #0a0a0a 100%),
+        linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    position: relative;
+}
+
+/* Arena stands with crowd silhouettes */
+.arena-stands {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background:
+        /* Crowd silhouette pattern */
+        repeating-linear-gradient(90deg,
+            transparent 0px,
+            transparent 8px,
+            rgba(42, 42, 42, 0.6) 8px,
+            rgba(42, 42, 42, 0.6) 10px,
+            transparent 10px,
+            transparent 15px,
+            rgba(42, 42, 42, 0.5) 15px,
+            rgba(42, 42, 42, 0.5) 17px),
+        /* Tiered seating */
+        repeating-linear-gradient(0deg,
+            rgba(42, 42, 42, 0.7) 0px,
+            rgba(42, 42, 42, 0.7) 25px,
+            rgba(26, 26, 26, 0.8) 25px,
+            rgba(26, 26, 26, 0.8) 30px),
+        linear-gradient(180deg, rgba(42, 42, 42, 0.6) 0%, transparent 100%);
+}
+
+/* Add ambient torch lighting from stands */
+.arena-stands::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 25%),
+        radial-gradient(circle at 80% 50%, rgba(212, 175, 55, 0.15) 0%, transparent 30%);
+    animation: torch-flicker-ambient 4s ease-in-out infinite;
+}
+
+@keyframes torch-flicker-ambient {
+
+    0%,
+    100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.warboard-content {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.round-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(128, 0, 32, 0.3);
+    border: 2px solid var(--crimson-dark);
+    border-radius: 8px;
+    padding: 20px 40px;
+    margin-bottom: 40px;
+}
+
+.banner-label {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--marble);
+}
+
+.banner-status {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--crimson);
+    text-shadow: var(--shadow-crimson);
+}
+
+.banner-timer {
+    font-family: var(--font-body);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.warboard-table-container {
+    background: rgba(26, 26, 26, 0.8);
+    border: 2px solid var(--gold-dark);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-deep);
+}
+
+.warboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.warboard-table thead {
+    background: var(--gradient-gold);
+}
+
+.warboard-table th {
+    padding: 20px;
+    text-align: left;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--stone-darkest);
+}
+
+.warboard-table tbody tr {
+    border-bottom: 1px solid var(--stone-light);
+    transition: all 0.3s ease;
+}
+
+.warboard-table tbody tr:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.warboard-table tbody tr:first-child {
+    background: rgba(220, 20, 60, 0.1);
+    border-left: 4px solid var(--crimson);
+}
+
+.warboard-table td {
+    padding: 20px;
+    font-family: var(--font-body);
+    color: var(--ivory);
+}
+
+.rank-col {
+    width: 80px;
+}
+
+.loading-row td {
+    text-align: center;
+    padding: 60px;
+    color: var(--marble);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--stone-light);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.view-all-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.view-all-btn {
+    display: inline-block;
+    padding: 15px 40px;
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.view-all-btn:hover {
+    background: var(--gold);
+    color: var(--stone-darkest);
+    box-shadow: var(--shadow-gold);
+}
+
+/* === SECTION 5: VICTORY PODIUM === */
+.victory-podium {
+    padding: var(--section-padding);
+    background:
+        radial-gradient(circle at 50% 50%, rgba(128, 0, 32, 0.4) 0%, transparent 60%),
+        linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #800020 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Radiant glory effect */
+.podium-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        /* Central radiance */
+        radial-gradient(circle at 50% 80%, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 30%, transparent 70%),
+        /* Light rays */
+        repeating-conic-gradient(from 0deg at 50% 80%,
+            transparent 0deg,
+            transparent 8deg,
+            rgba(212, 175, 55, 0.05) 8deg,
+            rgba(212, 175, 55, 0.05) 10deg,
+            transparent 10deg,
+            transparent 18deg);
+    animation: glory-pulse 6s ease-in-out infinite;
+}
+
+/* Add marble floor texture */
+.podium-bg::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background-image:
+        /* Marble veins */
+        linear-gradient(135deg, transparent 45%, rgba(245, 245, 220, 0.05) 45%, rgba(245, 245, 220, 0.05) 47%, transparent 47%),
+        linear-gradient(-135deg, transparent 45%, rgba(245, 245, 220, 0.05) 45%, rgba(245, 245, 220, 0.05) 47%, transparent 47%),
+        /* Marble base */
+        linear-gradient(180deg, transparent 0%, rgba(245, 245, 220, 0.08) 100%);
+    background-size: 200px 200px, 200px 200px, 100% 100%;
+}
+
+@keyframes glory-pulse {
+
+    0%,
+    100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+.podium-content {
+    position: relative;
+    z-index: 10;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.champion-pedestals {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 40px;
+    margin-top: 60px;
+}
+
+.pedestal {
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.pedestal:hover {
+    transform: translateY(-10px);
+}
+
+.pedestal-platform {
+    width: 200px;
+    background: var(--gradient-stone);
+    border: 2px solid var(--stone-light);
+    border-radius: 8px 8px 0 0;
+    padding: 40px 20px;
+    position: relative;
+    box-shadow: var(--shadow-deep);
+}
+
+.second-place .pedestal-platform {
+    height: 180px;
+    border-color: #C0C0C0;
+}
+
+.first-place .pedestal-platform {
+    height: 240px;
+    border-color: var(--gold);
+    box-shadow: 0 0 40px var(--gold-glow), var(--shadow-deep);
+}
+
+.third-place .pedestal-platform {
+    height: 140px;
+    border-color: var(--bronze);
+}
+
+.platform-number {
+    font-family: var(--font-display);
+    font-size: 72px;
+    color: var(--gold-dark);
+    opacity: 0.2;
+}
+
+.champion-info {
+    margin-top: 20px;
+}
+
+.champion-crown {
+    font-size: 48px;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+}
+
+.champion-name {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    color: var(--ivory);
+    margin-bottom: 5px;
+}
+
+.champion-glory {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.laurel-wreath {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    border: 4px solid var(--gold);
+    border-radius: 50%;
+    box-shadow: var(--shadow-gold);
+    animation: pulse-gold 3s ease-in-out infinite;
+}
+
+/* === SECTION 6: ENLISTMENT HALL === */
+.enlistment-hall {
+    padding: var(--section-padding);
+    background: var(--stone-dark);
+    position: relative;
+}
+
+.hall-pillars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        repeating-linear-gradient(90deg, transparent, transparent 200px, rgba(212, 175, 55, 0.05) 200px, rgba(212, 175, 55, 0.05) 220px);
+    opacity: 0.5;
+}
+
+.enlist-content {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.enlist-intro {
+    text-align: center;
+    font-size: 18px;
+    color: var(--marble);
+    margin-bottom: 60px;
+    line-height: 1.8;
+}
+
+.enlistment-form {
+    background: rgba(26, 26, 26, 0.9);
+    border: 2px solid var(--gold-dark);
+    border-radius: 8px;
+    padding: 60px;
+    box-shadow: var(--shadow-deep);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.field-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 10px;
+}
+
+.label-icon {
+    font-size: 18px;
+}
+
+.enlistment-form input[type="text"],
+.enlistment-form input[type="email"] {
+    padding: 15px 20px;
+    background: rgba(42, 42, 42, 0.8);
+    border: 1px solid var(--stone-light);
+    border-radius: 4px;
+    color: var(--ivory);
+    font-family: var(--font-body);
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.enlistment-form input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 20px var(--gold-glow);
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(42, 42, 42, 0.5);
+    border: 1px solid var(--stone-light);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+    border-color: var(--gold-dark);
+    background: rgba(42, 42, 42, 0.8);
+}
+
+.radio-option input[type="radio"] {
+    display: none;
+}
+
+.radio-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--stone-lighter);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.radio-option input[type="radio"]:checked+.radio-custom {
+    border-color: var(--gold);
+    box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.radio-option input[type="radio"]:checked+.radio-custom::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--gold);
+    border-radius: 50%;
+}
+
+.radio-label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.radio-label strong {
+    font-family: var(--font-heading);
+    color: var(--ivory);
+    font-size: 16px;
+}
+
+.radio-label small {
+    color: var(--marble);
+    font-size: 13px;
+}
+
+.enlist-submit-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    background: var(--gradient-crimson);
+    border: 2px solid var(--crimson);
+    border-radius: 4px;
+    color: var(--ivory);
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-crimson);
+    margin-top: 20px;
+}
+
+.enlist-submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 40px rgba(220, 20, 60, 0.6), var(--shadow-deep);
+}
+
+.btn-shield,
+.btn-sword {
+    font-size: 24px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.enlist-message {
+    margin-top: 30px;
+    padding: 30px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.enlist-message.success {
+    background: rgba(0, 128, 0, 0.1);
+    border: 2px solid #00FF00;
+}
+
+.enlist-message.error {
+    background: rgba(220, 20, 60, 0.1);
+    border: 2px solid var(--crimson);
+}
+
+.message-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.enlist-message h3 {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.legion-count {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid var(--stone-light);
+}
+
+.count-label {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--marble);
+    margin-right: 15px;
+}
+
+.count-value {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--gold);
+}
+
+/* === FOOTER === */
+.coliseum-footer {
+    background: var(--stone-darkest);
+    border-top: 2px solid var(--gold-dark);
+    padding: 80px 0 40px;
+}
+
+.footer-content {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.footer-crest {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.footer-name {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--ivory);
+}
+
+.footer-motto {
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--gold);
+    margin-top: 10px;
+}
+
+.footer-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 60px;
+}
+
+.link-column h4 {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    color: var(--gold);
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.link-column a {
+    display: block;
+    color: var(--marble);
+    text-decoration: none;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.link-column a:hover {
+    color: var(--gold);
+    padding-left: 10px;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 40px;
+    border-top: 1px solid var(--stone-light);
+    color: var(--marble);
+    font-size: 14px;
+}
+
+.footer-disclaimer {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .title-main {
+        font-size: 56px;
+    }
+
+    .entrance-stats {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .preparation-chambers {
+        grid-template-columns: 1fr;
+    }
+
+    .champion-pedestals {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .pedestal-platform {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .nav-links {
+        gap: 20px;
+        font-size: 12px;
+    }
+}

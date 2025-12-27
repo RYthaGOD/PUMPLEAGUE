@@ -1,0 +1,217 @@
+/* ========================================
+   BACKGROUND ENHANCEMENTS
+   Additional textures and atmospheric effects
+   ======================================== */
+
+/* Enhanced Entrance Gates */
+.entrance-gates {
+    background:
+        radial-gradient(circle at 30% 40%, rgba(128, 0, 32, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 70% 60%, rgba(139, 0, 0, 0.2) 0%, transparent 50%),
+        linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 30%, #800020 100%) !important;
+}
+
+.entrance-gates::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        repeating-linear-gradient(90deg, transparent 0px, transparent 3px, rgba(42, 42, 42, 0.4) 3px, rgba(42, 42, 42, 0.4) 4px),
+        repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(42, 42, 42, 0.4) 3px, rgba(42, 42, 42, 0.4) 4px),
+        radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 30%),
+        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 30%);
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.entrance-gates::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        linear-gradient(135deg, transparent 45%, rgba(0, 0, 0, 0.3) 45%, rgba(0, 0, 0, 0.3) 47%, transparent 47%),
+        linear-gradient(45deg, transparent 48%, rgba(0, 0, 0, 0.2) 48%, rgba(0, 0, 0, 0.2) 52%, transparent 52%);
+    background-size: 400px 400px, 300px 300px;
+    background-position: 0 0, 100px 100px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Enhanced stone archways */
+.arch-left,
+.arch-right {
+    background:
+        repeating-linear-gradient(0deg, rgba(42, 42, 42, 0.8) 0px, rgba(42, 42, 42, 0.8) 20px, rgba(26, 26, 26, 0.8) 20px, rgba(26, 26, 26, 0.8) 40px),
+        linear-gradient(90deg, rgba(42, 42, 42, 0.9) 0%, transparent 100%) !important;
+    opacity: 0.8 !important;
+    width: 250px !important;
+}
+
+.arch-left {
+    box-shadow:
+        inset -30px 0 60px rgba(0, 0, 0, 0.9),
+        inset 0 0 100px rgba(212, 175, 55, 0.05) !important;
+}
+
+.arch-right {
+    background:
+        repeating-linear-gradient(0deg, rgba(42, 42, 42, 0.8) 0px, rgba(42, 42, 42, 0.8) 20px, rgba(26, 26, 26, 0.8) 20px, rgba(26, 26, 26, 0.8) 40px),
+        linear-gradient(-90deg, rgba(42, 42, 42, 0.9) 0%, transparent 100%) !important;
+    box-shadow:
+        inset 30px 0 60px rgba(0, 0, 0, 0.9),
+        inset 0 0 100px rgba(212, 175, 55, 0.05) !important;
+}
+
+/* Enhanced Arena Floor */
+.arena-floor {
+    background:
+        radial-gradient(circle at 50% 50%, rgba(26, 26, 26, 0.8) 0%, #1a1a1a 100%),
+        linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%) !important;
+}
+
+.sand-texture {
+    background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(212, 175, 55, 0.02) 1px, rgba(212, 175, 55, 0.02) 2px),
+        repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(212, 175, 55, 0.02) 1px, rgba(212, 175, 55, 0.02) 2px),
+        repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(212, 175, 55, 0.03) 3px, rgba(212, 175, 55, 0.03) 6px),
+        repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(212, 175, 55, 0.02) 5px, rgba(212, 175, 55, 0.02) 10px) !important;
+    opacity: 0.7 !important;
+}
+
+.sand-texture::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 15% 25%, rgba(74, 74, 74, 0.4) 0%, transparent 2%),
+        radial-gradient(circle at 85% 35%, rgba(74, 74, 74, 0.3) 0%, transparent 1.5%),
+        radial-gradient(circle at 45% 65%, rgba(74, 74, 74, 0.5) 0%, transparent 2.5%),
+        radial-gradient(circle at 75% 75%, rgba(74, 74, 74, 0.3) 0%, transparent 1%),
+        radial-gradient(circle at 25% 85%, rgba(74, 74, 74, 0.4) 0%, transparent 1.8%);
+}
+
+.blood-stains {
+    background-image:
+        radial-gradient(ellipse at 20% 30%, rgba(102, 0, 0, 0.3) 0%, rgba(102, 0, 0, 0.15) 20%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(102, 0, 0, 0.25) 0%, rgba(102, 0, 0, 0.1) 15%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(102, 0, 0, 0.2) 0%, rgba(102, 0, 0, 0.08) 25%, transparent 60%),
+        radial-gradient(circle at 35% 45%, rgba(139, 0, 0, 0.4) 0%, transparent 3%),
+        radial-gradient(circle at 65% 55%, rgba(139, 0, 0, 0.3) 0%, transparent 2%),
+        radial-gradient(circle at 40% 75%, rgba(139, 0, 0, 0.35) 0%, transparent 2.5%) !important;
+}
+
+/* Enhanced Gladiator Prep */
+.gladiator-prep {
+    background:
+        radial-gradient(circle at 30% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 70% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+        linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%) !important;
+}
+
+.stone-wall-bg {
+    background-image:
+        repeating-linear-gradient(90deg,
+            rgba(42, 42, 42, 0.6) 0px,
+            rgba(42, 42, 42, 0.6) 120px,
+            rgba(26, 26, 26, 0.8) 120px,
+            rgba(26, 26, 26, 0.8) 125px),
+        repeating-linear-gradient(0deg,
+            rgba(42, 42, 42, 0.6) 0px,
+            rgba(42, 42, 42, 0.6) 80px,
+            rgba(26, 26, 26, 0.8) 80px,
+            rgba(26, 26, 26, 0.8) 85px),
+        repeating-linear-gradient(45deg,
+            transparent 0px,
+            transparent 100px,
+            rgba(0, 0, 0, 0.3) 100px,
+            rgba(0, 0, 0, 0.3) 102px) !important;
+    opacity: 0.4 !important;
+}
+
+.stone-wall-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(34, 139, 34, 0.1) 0%, transparent 5%),
+        radial-gradient(circle at 90% 40%, rgba(34, 139, 34, 0.08) 0%, transparent 4%),
+        radial-gradient(circle at 30% 70%, rgba(34, 139, 34, 0.12) 0%, transparent 6%),
+        radial-gradient(circle at 70% 85%, rgba(34, 139, 34, 0.09) 0%, transparent 5%);
+}
+
+/* Enhanced Enlistment Hall */
+.enlistment-hall {
+    background:
+        radial-gradient(circle at 30% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 70% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+        linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%) !important;
+}
+
+.hall-pillars {
+    background-image:
+        repeating-linear-gradient(90deg,
+            transparent 0px,
+            transparent 180px,
+            rgba(212, 175, 55, 0.08) 180px,
+            rgba(212, 175, 55, 0.08) 185px,
+            rgba(42, 42, 42, 0.6) 185px,
+            rgba(42, 42, 42, 0.6) 205px,
+            rgba(212, 175, 55, 0.08) 205px,
+            rgba(212, 175, 55, 0.08) 210px,
+            transparent 210px,
+            transparent 390px),
+        repeating-linear-gradient(0deg,
+            transparent 0px,
+            transparent 15px,
+            rgba(26, 26, 26, 0.4) 15px,
+            rgba(26, 26, 26, 0.4) 16px) !important;
+    opacity: 0.6 !important;
+}
+
+.hall-pillars::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background-image:
+        repeating-linear-gradient(90deg,
+            transparent 0px,
+            transparent 180px,
+            rgba(212, 175, 55, 0.15) 180px,
+            rgba(212, 175, 55, 0.15) 210px,
+            transparent 210px,
+            transparent 390px);
+}
+
+.hall-pillars::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background-image:
+        repeating-linear-gradient(90deg,
+            transparent 0px,
+            transparent 180px,
+            rgba(212, 175, 55, 0.15) 180px,
+            rgba(212, 175, 55, 0.15) 210px,
+            transparent 210px,
+            transparent 390px);
+}

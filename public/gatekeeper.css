@@ -1,0 +1,219 @@
+/* Gatekeeper Overlay - High Security Access */
+#gatekeeper-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #050505;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Outfit', sans-serif;
+    color: #fff;
+    transition: opacity 1.5s ease-out;
+}
+
+#gatekeeper-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Background Effects */
+.gate-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 90%);
+    z-index: 0;
+}
+
+.gate-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255, 215, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 215, 0, 0.05) 1px, transparent 1px);
+    background-size: 80px 80px;
+    z-index: 1;
+    opacity: 0.5;
+}
+
+/* The Iron Gate Graphic (CSS/SVG representation) */
+.iron-gate-left,
+.iron-gate-right {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background:
+        repeating-linear-gradient(90deg,
+            #111 0px,
+            #111 20px,
+            #000 20px,
+            #000 40px);
+    z-index: 2;
+    border-right: 5px solid #333;
+    transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: inset 0 0 100px #000;
+}
+
+.iron-gate-left {
+    left: 0;
+    transform-origin: left;
+    border-right: 2px solid #333;
+}
+
+.iron-gate-right {
+    right: 0;
+    transform-origin: right;
+    border-left: 2px solid #333;
+    border-right: none;
+}
+
+.gate-open .iron-gate-left {
+    transform: translateX(-100%);
+}
+
+.gate-open .iron-gate-right {
+    transform: translateX(100%);
+}
+
+/* Content Container */
+.gate-content {
+    position: relative;
+    z-index: 10;
+    background: rgba(10, 10, 10, 0.9);
+    padding: 60px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    backdrop-filter: blur(10px);
+}
+
+.gate-logo {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 3rem;
+    color: #ffd700;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.gate-subtitle {
+    font-size: 1rem;
+    color: #888;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Input Field */
+.code-input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.code-input {
+    width: 100%;
+    background: #000;
+    border: 1px solid #333;
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.code-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.btn-enter {
+    width: 100%;
+    padding: 15px;
+    background: #ffd700;
+    color: #000;
+    font-weight: 800;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-enter:hover {
+    background: #fff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+/* Error Message */
+.gate-error {
+    color: #ff4136;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    height: 20px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.gate-error.visible {
+    opacity: 1;
+}
+
+/* Toggle Waitlist */
+.waitlist-trigger {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #666;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s;
+}
+
+.waitlist-trigger:hover {
+    color: #ffd700;
+}
+
+/* Waitlist Container in Gate */
+#gate-waitlist-container {
+    display: none;
+    /* Hidden by default */
+    margin-top: 20px;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+#gate-waitlist-container.visible {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

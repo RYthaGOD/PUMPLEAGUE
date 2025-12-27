@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment & Secrets
+.env
+*.pem
+*.key
+
+# Database
+db/*.db
+
+# Logs
+*.log
+*.txt
+npm-debug.log*
+live_log.txt
+debug.log
+start_debug.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+dist/
+build/

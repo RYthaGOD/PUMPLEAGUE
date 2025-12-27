@@ -1,0 +1,235 @@
+/* Mechanics of War - Professional Section Styles */
+#mechanics {
+    position: relative;
+    width: 100%;
+    background-color: #050505;
+    color: #fff;
+    overflow: hidden;
+    font-family: 'Outfit', sans-serif;
+}
+
+.mechanics-wrapper {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.mechanics-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+    z-index: 0;
+}
+
+.grid-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255, 215, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 215, 0, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: 1;
+}
+
+.mechanic-stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    /* Flex, but hidden initially via opacity */
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 5;
+    padding: 0 10%;
+}
+
+.mechanic-content {
+    display: flex;
+    max-width: 1200px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+/* Text Side */
+.mechanic-text {
+    flex: 1;
+    text-align: left;
+}
+
+.step-label {
+    display: inline-block;
+    color: #ffd700;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #ffd700;
+    padding-bottom: 5px;
+}
+
+.mechanic-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Cinzel Decorative', serif;
+}
+
+.mechanic-desc {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 500px;
+}
+
+/* Visual Side */
+.mechanic-visual {
+    flex: 1;
+    height: 400px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Stage 1: The Forge (Enlistment) --- */
+.token-forge {
+    width: 200px;
+    height: 200px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.1);
+}
+
+.forge-core {
+    width: 100px;
+    height: 100px;
+    background: #ffd700;
+    border-radius: 50%;
+    filter: blur(20px);
+    opacity: 0.5;
+}
+
+.forge-ring {
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    border: 1px dashed rgba(255, 215, 0, 0.5);
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+}
+
+/* --- Stage 2: The Skirmish (Combat) --- */
+.combat-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 30px;
+    height: 300px;
+    width: 100%;
+}
+
+.bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.combat-bar {
+    width: 60px;
+    background: #333;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    overflow: hidden;
+    height: 0;
+    /* Animated */
+}
+
+.bar-blue {
+    background: linear-gradient(to top, #001f3f, #0074D9);
+    box-shadow: 0 0 20px rgba(0, 116, 217, 0.4);
+}
+
+.bar-red {
+    background: linear-gradient(to top, #3f0000, #FF4136);
+    box-shadow: 0 0 20px rgba(255, 65, 54, 0.4);
+}
+
+.bar-label {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 14px;
+    color: #ffd700;
+}
+
+/* --- Stage 3: The Tribute (Victory) --- */
+.tribute-chest {
+    width: 300px;
+    height: 200px;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+    position: relative;
+    background: rgba(20, 20, 20, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+}
+
+.sol-stream {
+    position: absolute;
+    top: -100px;
+    width: 4px;
+    height: 100px;
+    background: #00f2ff;
+    box-shadow: 0 0 10px #00f2ff;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 900px) {
+    .mechanic-content {
+        flex-direction: column-reverse;
+        /* Visual on top on mobile */
+        text-align: center;
+        gap: 40px;
+    }
+
+    .mechanic-text {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mechanic-title {
+        font-size: 2.5rem;
+    }
+}

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PumpLeague | The Coliseum of Champions</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="background-enhancements.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navigation - The Watchtower -->
+    <nav class="coliseum-nav">
+        <div class="nav-container">
+            <div class="arena-crest">
+                <span class="crest-icon">⚔️</span>
+                <span class="arena-name">PUMP<span class="gold-text">LEAGUE</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="#arena" class="nav-link">THE ARENA</a>
+                <a href="#warboard" class="nav-link">WARBOARD</a>
+                <a href="#champions" class="nav-link">CHAMPIONS</a>
+                <a href="#enlist" class="nav-link enlist-btn">ENLIST NOW</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Section 1: The Entrance Gates -->
+    <section id="entrance" class="entrance-gates">
+        <div class="stone-archway">
+            <div class="arch-left"></div>
+            <div class="arch-right"></div>
+        </div>
+        <div class="entrance-content">
+            <div class="imperial-seal">
+                <div class="seal-ring"></div>
+                <span class="seal-text">EST. MMXXIV</span>
+            </div>
+            <h1 class="entrance-title">
+                <span class="title-line">WELCOME TO THE</span>
+                <span class="title-main">COLISEUM</span>
+                <span class="title-subtitle">Where Tokens Fight for Glory</span>
+            </h1>
+            <div class="entrance-stats">
+                <div class="stat-torch">
+                    <div class="torch-flame"></div>
+                    <span class="stat-value" id="total-battles">0</span>
+                    <span class="stat-label">Battles Fought</span>
+                </div>
+                <div class="stat-torch">
+                    <div class="torch-flame"></div>
+                    <span class="stat-value" id="total-sol">0 SOL</span>
+                    <span class="stat-label">Blood Spilled</span>
+                </div>
+                <div class="stat-torch">
+                    <div class="torch-flame"></div>
+                    <span class="stat-value" id="total-warriors">0</span>
+                    <span class="stat-label">Warriors</span>
+                </div>
+            </div>
+            <a href="#arena" class="enter-arena-btn">
+                <span class="btn-text">ENTER THE ARENA</span>
+                <span class="btn-icon">⚔️</span>
+            </a>
+        </div>
+        <div class="entrance-fog"></div>
+    </section>
+
+    <!-- Section 2: The Arena Floor - Hero -->
+    <section id="arena" class="arena-floor">
+        <div class="sand-texture"></div>
+        <div class="blood-stains"></div>
+        <div class="arena-content">
+            <div class="arena-decree">
+                <div class="decree-scroll">
+                    <h2 class="decree-title">THE ARENA'S DECREE</h2>
+                    <p class="decree-text">
+                        In this sacred ground, tokens clash in brutal combat. Only the strongest survive.
+                        Volume is your sword. Market cap is your shield. The crowd's roar determines your fate.
+                    </p>
+                    <div class="decree-seal">
+                        <span class="seal-symbol">⚖️</span>
+                        <span class="seal-motto">STRENGTH • HONOR • GLORY</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: The Gladiator Preparation - How It Works -->
+    <section id="preparation" class="gladiator-prep">
+        <div class="stone-wall-bg"></div>
+        <div class="prep-content">
+            <h2 class="section-title">
+                <span class="title-icon">🏛️</span>
+                THE PATH TO GLORY
+                <span class="title-underline"></span>
+            </h2>
+
+            <div class="preparation-chambers">
+                <!-- Chamber 1: Enlistment -->
+                <div class="chamber">
+                    <div class="chamber-gate">
+                        <div class="gate-icon">⚔️</div>
+                        <div class="gate-number">I</div>
+                    </div>
+                    <div class="chamber-content">
+                        <h3 class="chamber-title">THE ENLISTMENT</h3>
+                        <p class="chamber-desc">
+                            Every warrior must register. Bring your token to the arena gates.
+                            No permission required. Only courage.
+                        </p>
+                        <ul class="chamber-details">
+                            <li>Submit your token address</li>
+                            <li>Automatic verification</li>
+                            <li>Instant arena entry</li>
+                        </ul>
+                    </div>
+                    <div class="chamber-torch left"></div>
+                    <div class="chamber-torch right"></div>
+                </div>
+
+                <!-- Chamber 2: The Battle -->
+                <div class="chamber featured">
+                    <div class="chamber-gate">
+                        <div class="gate-icon">⚡</div>
+                        <div class="gate-number">II</div>
+                    </div>
+                    <div class="chamber-content">
+                        <h3 class="chamber-title">THE BATTLE</h3>
+                        <p class="chamber-desc">
+                            Combat is measured by our sacred algorithm. Volume vs Market Cap.
+                            High activity multiplies your power. The crowd's favor shifts the tide.
+                        </p>
+                        <ul class="chamber-details">
+                            <li>Real-time power calculation</li>
+                            <li>Volume-weighted scoring</li>
+                            <li>Dynamic leaderboard updates</li>
+                        </ul>
+                    </div>
+                    <div class="chamber-torch left"></div>
+                    <div class="chamber-torch right"></div>
+                </div>
+
+                <!-- Chamber 3: The Spoils -->
+                <div class="chamber">
+                    <div class="chamber-gate">
+                        <div class="gate-icon">👑</div>
+                        <div class="gate-number">III</div>
+                    </div>
+                    <div class="chamber-content">
+                        <h3 class="chamber-title">THE SPOILS</h3>
+                        <p class="chamber-desc">
+                            To the victor, the spoils. Trading fees are collected and distributed
+                            as SOL to the holders of the champion token.
+                        </p>
+                        <ul class="chamber-details">
+                            <li>Automatic SOL airdrops</li>
+                            <li>Proportional to holdings</li>
+                            <li>Instant distribution</li>
+                        </ul>
+                    </div>
+                    <div class="chamber-torch left"></div>
+                    <div class="chamber-torch right"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: The Battle Arena - Live Warboard -->
+    <section id="warboard" class="battle-arena">
+        <div class="arena-stands"></div>
+        <div class="warboard-content">
+            <h2 class="section-title">
+                <span class="title-icon">⚔️</span>
+                THE WARBOARD
+                <span class="title-underline"></span>
+            </h2>
+
+            <div class="round-banner">
+                <span class="banner-label">CURRENT ROUND</span>
+                <span class="banner-status" id="round-status">BATTLE IN PROGRESS</span>
+                <span class="banner-timer" id="round-timer">--:--:--</span>
+            </div>
+
+            <div class="warboard-table-container">
+                <table class="warboard-table">
+                    <thead>
+                        <tr>
+                            <th class="rank-col">RANK</th>
+                            <th class="warrior-col">WARRIOR</th>
+                            <th class="power-col">POWER</th>
+                            <th class="spoils-col">SPOILS</th>
+                            <th class="status-col">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr class="loading-row">
+                            <td colspan="5">
+                                <div class="loading-spinner"></div>
+                                <span>Summoning warriors...</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="view-all-container">
+                <a href="#" class="view-all-btn">VIEW FULL WARBOARD →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: The Victory Podium - Hall of Champions -->
+    <section id="champions" class="victory-podium">
+        <div class="podium-bg"></div>
+        <div class="podium-content">
+            <h2 class="section-title">
+                <span class="title-icon">🏆</span>
+                HALL OF CHAMPIONS
+                <span class="title-underline"></span>
+            </h2>
+
+            <div class="champion-pedestals">
+                <div class="pedestal second-place">
+                    <div class="pedestal-platform">
+                        <span class="platform-number">II</span>
+                    </div>
+                    <div class="champion-info" id="champion-2">
+                        <div class="champion-crown silver">🥈</div>
+                        <div class="champion-name">---</div>
+                        <div class="champion-glory">--- SOL</div>
+                    </div>
+                </div>
+
+                <div class="pedestal first-place">
+                    <div class="pedestal-platform">
+                        <span class="platform-number">I</span>
+                    </div>
+                    <div class="champion-info" id="champion-1">
+                        <div class="champion-crown gold">👑</div>
+                        <div class="champion-name">---</div>
+                        <div class="champion-glory">--- SOL</div>
+                    </div>
+                    <div class="laurel-wreath"></div>
+                </div>
+
+                <div class="pedestal third-place">
+                    <div class="pedestal-platform">
+                        <span class="platform-number">III</span>
+                    </div>
+                    <div class="champion-info" id="champion-3">
+                        <div class="champion-crown bronze">🥉</div>
+                        <div class="champion-name">---</div>
+                        <div class="champion-glory">--- SOL</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: The Enlistment Hall - Waitlist -->
+    <section id="enlist" class="enlistment-hall">
+        <div class="hall-pillars"></div>
+        <div class="enlist-content">
+            <h2 class="section-title">
+                <span class="title-icon">📜</span>
+                ENLIST IN THE LEGION
+                <span class="title-underline"></span>
+            </h2>
+
+            <p class="enlist-intro">
+                Join the ranks of warriors awaiting entry to the arena.
+                Secure your place in history.
+            </p>
+
+            <form id="waitlist-form" class="enlistment-form">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="field-label">
+                            <span class="label-icon">𝕏</span>
+                            TWITTER HANDLE
+                        </label>
+                        <input type="text" name="twitterHandle" placeholder="@YourHandle" required>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="field-label">
+                            <span class="label-icon">👛</span>
+                            SOLANA WALLET
+                        </label>
+                        <input type="text" name="walletAddress" placeholder="Your Solana Address" required
+                            minlength="32">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-field warrior-type">
+                        <label class="field-label">
+                            <span class="label-icon">⚔️</span>
+                            WARRIOR CLASS
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="userType" value="builder" required>
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">
+                                    <strong>Builder</strong>
+                                    <small>I forge tokens and projects</small>
+                                </span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="userType" value="trader" required>
+                                <span class="radio-custom"></span>
+                                <span class="radio-label">
+                                    <strong>Trader</strong>
+                                    <small>I battle in the markets</small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label class="field-label">
+                            <span class="label-icon">✉️</span>
+                            EMAIL (OPTIONAL)
+                        </label>
+                        <input type="email" name="email" placeholder="your@email.com">
+                    </div>
+                </div>
+
+                <button type="submit" class="enlist-submit-btn">
+                    <span class="btn-shield">🛡️</span>
+                    <span class="btn-text">JOIN THE LEGION</span>
+                    <span class="btn-sword">⚔️</span>
+                </button>
+            </form>
+
+            <div id="enlist-success" class="enlist-message success" style="display: none;">
+                <div class="message-icon">🏆</div>
+                <h3>Welcome, Warrior!</h3>
+                <p>You have been enlisted. Your position: <strong id="waitlist-position">#0</strong></p>
+            </div>
+
+            <div id="enlist-error" class="enlist-message error" style="display: none;">
+                <div class="message-icon">⚠️</div>
+                <h3>Enlistment Failed</h3>
+                <p id="error-message">Something went wrong.</p>
+            </div>
+
+            <div class="legion-count">
+                <span class="count-label">WARRIORS ENLISTED:</span>
+                <span class="count-value" id="total-enlisted">0</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer - The Catacombs -->
+    <footer class="coliseum-footer">
+        <div class="footer-content">
+            <div class="footer-crest">
+                <span class="crest-icon">⚔️</span>
+                <span class="footer-name">PUMP<span class="gold-text">LEAGUE</span></span>
+                <p class="footer-motto">Gloria in Certamine</p>
+            </div>
+
+            <div class="footer-links">
+                <div class="link-column">
+                    <h4>THE ARENA</h4>
+                    <a href="#arena">Enter</a>
+                    <a href="#warboard">Warboard</a>
+                    <a href="#champions">Champions</a>
+                </div>
+                <div class="link-column">
+                    <h4>RESOURCES</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">Smart Contract</a>
+                    <a href="#">Whitepaper</a>
+                </div>
+                <div class="link-column">
+                    <h4>COMMUNITY</h4>
+                    <a href="#">Twitter</a>
+                    <a href="#">Discord</a>
+                    <a href="#">Telegram</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; MMXXIV The Coliseum. All rights reserved.</p>
+                <p class="footer-disclaimer">Trade at your own risk. May the gods favor the bold.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="waitlist.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
