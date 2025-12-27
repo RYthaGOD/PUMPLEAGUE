@@ -12,6 +12,7 @@ const { getDb } = require('./db/schema');
 const apiKeys = require('./db/api-keys');
 const webhooks = require('./db/webhooks');
 const { sendTestWebhook } = require('./utils/webhook-delivery');
+const { WaitlistStore } = require('./db/waitlist');
 const fs = require('fs');
 
 const args = process.argv.slice(2);
@@ -85,6 +86,11 @@ async function main() {
         // Integration testing
         case 'test-integration':
             handleTestIntegration(args[1]);
+            break;
+
+        // Waitlist management
+        case 'waitlist':
+            handleWaitlist(args.slice(1));
             break;
 
         case 'help':
@@ -737,6 +743,195 @@ function convertToCSV(data) {
     ]);
 
     return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+}
+
+// ============ WAITLIST MANAGEMENT ============
+
+function handleWaitlist(params) {
+    const subcommand = params[0];
+
+    switch (subcommand) {
+        case 'list':
+            handleWaitlistList();
+            break;
+        case 'approve':
+            handleWaitlistApprove(params[1], params[2]);
+            break;
+        case 'reject':
+            handleWaitlistReject(params[1], params.slice(2).join(' '));
+            break;
+        case 'approved':
+            handleWaitlistApproved();
+            break;
+        default:
+            console.log('Usage: node cli.js waitlist <list|approve|reject|approved> [options]');
+            console.log('');
+            console.log('Commands:');
+            console.log('  list                    Show pending developer applications');
+            console.log('  approve <id> [tier]     Approve and auto-generate API key');
+            console.log('  reject <id> [reason]    Reject application with optional reason');
+            console.log('  approved                Show all approved developers with keys');
+    }
+}
+
+function handleWaitlistList() {
+    try {
+        const waitlistStore = new WaitlistStore('./db/pumpleague.db');
+        const pending = waitlistStore.getPendingDevelopers();
+
+        console.log(`\n📋 Pending Developer Applications (${pending.length})`);
+        console.log('═'.repeat(80));
+
+        if (pending.length === 0) {
+            console.log('No pending developer applications.\n');
+            return;
+        }
+
+        pending.forEach(entry => {
+            const date = new Date(entry.submitted_at).toISOString().split('T')[0];
+            console.log(`\n  ID: ${entry.id}`);
+            console.log(`  Twitter:  @${entry.twitter_handle}`);
+            console.log(`  Wallet:   ${entry.wallet_address.slice(0, 12)}...${entry.wallet_address.slice(-8)}`);
+            console.log(`  Email:    ${entry.email || 'N/A'}`);
+            console.log(`  Applied:  ${date}`);
+        });
+
+        console.log('\n─'.repeat(80));
+        console.log('To approve: node cli.js waitlist approve <id> [tier]');
+        console.log('To reject:  node cli.js waitlist reject <id> [reason]\n');
+    } catch (error) {
+        console.error(`❌ Failed: ${error.message}`);
+    }
+}
+
+function handleWaitlistApprove(id, tier = 'integration') {
+    if (!id) {
+        console.error('❌ Usage: node cli.js waitlist approve <id> [tier]');
+        console.log('   Tiers: public, integration (default), admin');
+        return;
+    }
+
+    const validTiers = ['public', 'integration', 'admin'];
+    if (!validTiers.includes(tier)) {
+        console.error(`❌ Invalid tier "${tier}". Must be: public, integration, or admin`);
+        return;
+    }
+
+    try {
+        const waitlistStore = new WaitlistStore('./db/pumpleague.db');
+        const entry = waitlistStore.getEntryById(parseInt(id));
+
+        if (!entry) {
+            console.error(`❌ Waitlist entry #${id} not found`);
+            return;
+        }
+
+        if (entry.status === 'approved') {
+            console.log(`⚠️  Entry #${id} (@${entry.twitter_handle}) is already approved`);
+            console.log(`   API Key ID: ${entry.api_key_id}`);
+            return;
+        }
+
+        if (entry.status === 'rejected') {
+            console.log(`⚠️  Entry #${id} was previously rejected`);
+            return;
+        }
+
+        // Create API key for this developer
+        const db = getDb();
+        const keyName = `Developer: @${entry.twitter_handle}`;
+        const apiKeyResult = apiKeys.createApiKey(db, {
+            name: keyName,
+            tier: tier,
+            metadata: {
+                waitlist_id: entry.id,
+                twitter: entry.twitter_handle,
+                wallet: entry.wallet_address
+            }
+        });
+
+        // Mark entry as approved
+        const approved = waitlistStore.approveEntry(parseInt(id), apiKeyResult.keyId, 'admin');
+
+        if (approved) {
+            console.log('\n✅ Developer Approved!');
+            console.log('═'.repeat(60));
+            console.log(`Developer:   @${entry.twitter_handle}`);
+            console.log(`Wallet:      ${entry.wallet_address}`);
+            console.log(`Email:       ${entry.email || 'N/A'}`);
+            console.log('');
+            console.log('📧 SEND TO DEVELOPER:');
+            console.log('─'.repeat(60));
+            console.log(`Key ID:      ${apiKeyResult.keyId}`);
+            console.log(`API Key:     ${apiKeyResult.apiKey}`);
+            console.log(`Tier:        ${tier}`);
+            console.log(`Rate Limit:  ${apiKeyResult.rateLimit}/hour`);
+            console.log('─'.repeat(60));
+            console.log('\n⚠️  Copy the API key above and DM it to the developer!');
+            console.log('   This key will NOT be shown again.\n');
+        } else {
+            console.error('❌ Failed to approve entry');
+        }
+    } catch (error) {
+        console.error(`❌ Failed: ${error.message}`);
+    }
+}
+
+function handleWaitlistReject(id, reason) {
+    if (!id) {
+        console.error('❌ Usage: node cli.js waitlist reject <id> [reason]');
+        return;
+    }
+
+    try {
+        const waitlistStore = new WaitlistStore('./db/pumpleague.db');
+        const entry = waitlistStore.getEntryById(parseInt(id));
+
+        if (!entry) {
+            console.error(`❌ Waitlist entry #${id} not found`);
+            return;
+        }
+
+        const rejected = waitlistStore.rejectEntry(parseInt(id), reason || null);
+
+        if (rejected) {
+            console.log(`\n✅ Rejected @${entry.twitter_handle}`);
+            if (reason) {
+                console.log(`   Reason: ${reason}`);
+            }
+            console.log('');
+        } else {
+            console.error('❌ Failed to reject entry');
+        }
+    } catch (error) {
+        console.error(`❌ Failed: ${error.message}`);
+    }
+}
+
+function handleWaitlistApproved() {
+    try {
+        const waitlistStore = new WaitlistStore('./db/pumpleague.db');
+        const approved = waitlistStore.getApprovedDevelopers();
+
+        console.log(`\n✅ Approved Developers (${approved.length})`);
+        console.log('═'.repeat(80));
+
+        if (approved.length === 0) {
+            console.log('No approved developers yet.\n');
+            return;
+        }
+
+        approved.forEach(entry => {
+            const date = new Date(entry.approved_at).toISOString().split('T')[0];
+            console.log(`\n  @${entry.twitter_handle}`);
+            console.log(`  Wallet:     ${entry.wallet_address.slice(0, 12)}...`);
+            console.log(`  API Key ID: ${entry.api_key_id}`);
+            console.log(`  Approved:   ${date}`);
+        });
+        console.log('');
+    } catch (error) {
+        console.error(`❌ Failed: ${error.message}`);
+    }
 }
 
 // ============ INTEGRATION TESTING ============

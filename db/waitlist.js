@@ -21,10 +21,32 @@ function initWaitlistSchema(db) {
             user_agent TEXT,
             verified INTEGER DEFAULT 0,
             notified INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'pending',
+            approved_at INTEGER,
+            approved_by TEXT,
+            api_key_id TEXT,
+            rejection_reason TEXT,
             UNIQUE(twitter_handle),
             UNIQUE(wallet_address)
         )
     `);
+
+    // Add new columns if they don't exist (migration for existing DBs)
+    try {
+        db.exec(`ALTER TABLE waitlist ADD COLUMN status TEXT DEFAULT 'pending'`);
+    } catch (e) { /* Column already exists */ }
+    try {
+        db.exec(`ALTER TABLE waitlist ADD COLUMN approved_at INTEGER`);
+    } catch (e) { /* Column already exists */ }
+    try {
+        db.exec(`ALTER TABLE waitlist ADD COLUMN approved_by TEXT`);
+    } catch (e) { /* Column already exists */ }
+    try {
+        db.exec(`ALTER TABLE waitlist ADD COLUMN api_key_id TEXT`);
+    } catch (e) { /* Column already exists */ }
+    try {
+        db.exec(`ALTER TABLE waitlist ADD COLUMN rejection_reason TEXT`);
+    } catch (e) { /* Column already exists */ }
 
     // Create index for faster lookups
     db.exec(`
@@ -35,6 +57,11 @@ function initWaitlistSchema(db) {
     db.exec(`
         CREATE INDEX IF NOT EXISTS idx_waitlist_verified 
         ON waitlist(verified, submitted_at DESC)
+    `);
+
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_waitlist_status 
+        ON waitlist(status, user_type)
     `);
 
     console.log('✅ Waitlist schema initialized');
@@ -57,8 +84,9 @@ class WaitlistStore {
                 referral_code,
                 submitted_at,
                 ip_address,
-                user_agent
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                user_agent,
+                status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
         `);
 
         try {
@@ -109,12 +137,85 @@ class WaitlistStore {
                 user_type,
                 submitted_at,
                 verified,
-                notified
+                notified,
+                status,
+                approved_at,
+                api_key_id
             FROM waitlist
             ORDER BY submitted_at ASC
             LIMIT ? OFFSET ?
         `);
         return stmt.all(limit, offset);
+    }
+
+    // Get pending developer applications
+    getPendingDevelopers() {
+        const stmt = this.db.prepare(`
+            SELECT 
+                id,
+                twitter_handle,
+                wallet_address,
+                email,
+                user_type,
+                submitted_at,
+                status
+            FROM waitlist
+            WHERE user_type = 'developer' AND status = 'pending'
+            ORDER BY submitted_at ASC
+        `);
+        return stmt.all();
+    }
+
+    // Get entry by ID
+    getEntryById(id) {
+        const stmt = this.db.prepare(`
+            SELECT * FROM waitlist WHERE id = ?
+        `);
+        return stmt.get(id);
+    }
+
+    // Approve entry and link API key
+    approveEntry(id, apiKeyId, approvedBy = 'admin') {
+        const stmt = this.db.prepare(`
+            UPDATE waitlist 
+            SET status = 'approved',
+                approved_at = ?,
+                approved_by = ?,
+                api_key_id = ?,
+                verified = 1
+            WHERE id = ?
+        `);
+        const result = stmt.run(Date.now(), approvedBy, apiKeyId, id);
+        return result.changes > 0;
+    }
+
+    // Reject entry with reason
+    rejectEntry(id, reason = null) {
+        const stmt = this.db.prepare(`
+            UPDATE waitlist 
+            SET status = 'rejected',
+                rejection_reason = ?
+            WHERE id = ?
+        `);
+        const result = stmt.run(reason, id);
+        return result.changes > 0;
+    }
+
+    // Get approved developers (with API keys)
+    getApprovedDevelopers() {
+        const stmt = this.db.prepare(`
+            SELECT 
+                id,
+                twitter_handle,
+                wallet_address,
+                email,
+                approved_at,
+                api_key_id
+            FROM waitlist
+            WHERE user_type = 'developer' AND status = 'approved'
+            ORDER BY approved_at DESC
+        `);
+        return stmt.all();
     }
 
     verifyEntry(id) {
@@ -137,3 +238,4 @@ class WaitlistStore {
 }
 
 module.exports = { initWaitlistSchema, WaitlistStore };
+
