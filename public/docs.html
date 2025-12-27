@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation | PumpLeague</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="background-enhancements.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Docs-specific styles */
+        .docs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 120px 40px 60px;
+            min-height: 100vh;
+        }
+
+        .docs-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .docs-header h1 {
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 3rem;
+            color: var(--gold);
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .docs-header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .docs-nav {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+
+        .docs-nav a {
+            padding: 15px 30px;
+            background: linear-gradient(145deg, rgba(40, 30, 20, 0.9), rgba(25, 20, 15, 0.95));
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .docs-nav a:hover {
+            background: linear-gradient(145deg, rgba(212, 175, 55, 0.2), rgba(139, 69, 19, 0.3));
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .docs-nav a.active {
+            background: linear-gradient(145deg, rgba(212, 175, 55, 0.3), rgba(139, 69, 19, 0.4));
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .doc-section {
+            background: linear-gradient(145deg, rgba(40, 30, 20, 0.8), rgba(25, 20, 15, 0.9));
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .doc-section h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .doc-section h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            margin: 30px 0 15px;
+        }
+
+        .doc-section p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .doc-section ul,
+        .doc-section ol {
+            color: var(--text-secondary);
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+
+        .doc-section li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .doc-section code {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--gold);
+        }
+
+        .doc-section pre {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .doc-section pre code {
+            background: none;
+            padding: 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .endpoint-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .endpoint-card .method {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+
+        .endpoint-card .method.get {
+            background: #2d5a27;
+            color: #7fff7f;
+        }
+
+        .endpoint-card .method.post {
+            background: #5a4827;
+            color: #ffd27f;
+        }
+
+        .endpoint-card .method.delete {
+            background: #5a2727;
+            color: #ff7f7f;
+        }
+
+        .endpoint-card .path {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            color: var(--text-primary);
+        }
+
+        .endpoint-card .desc {
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .doc-table th,
+        .doc-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .doc-table th {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+        }
+
+        .doc-table td {
+            color: var(--text-secondary);
+        }
+
+        .doc-table tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            margin-bottom: 30px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .back-home:hover {
+            opacity: 1;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: #24292e;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .github-link:hover {
+            background: #2f363d;
+            transform: translateY(-2px);
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .quick-link-card {
+            background: linear-gradient(145deg, rgba(40, 30, 20, 0.9), rgba(25, 20, 15, 0.95));
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .quick-link-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .quick-link-card h3 {
+            color: var(--gold);
+            margin: 0 0 10px;
+            font-family: 'Cinzel', serif;
+        }
+
+        .quick-link-card p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="coliseum-nav">
+        <div class="nav-container">
+            <div class="arena-crest">
+                <span class="crest-icon">⚔️</span>
+                <a href="index.html" style="text-decoration: none;">
+                    <span class="arena-name">PUMP<span class="gold-text">LEAGUE</span></span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html#arena" class="nav-link">THE ARENA</a>
+                <a href="index.html#warboard" class="nav-link">WARBOARD</a>
+                <a href="index.html#champions" class="nav-link">CHAMPIONS</a>
+                <a href="docs.html" class="nav-link active">DOCS</a>
+                <a href="index.html#enlist" class="nav-link enlist-btn">ENLIST NOW</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="docs-container">
+        <a href="index.html" class="back-home">← Back to Arena</a>
+
+        <header class="docs-header">
+            <h1>📜 SACRED SCROLLS</h1>
+            <p>Documentation for Warriors & Builders</p>
+        </header>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <a href="#overview" class="quick-link-card">
+                <h3>🏛️ Overview</h3>
+                <p>What is PumpLeague and how does it work?</p>
+            </a>
+            <a href="#api" class="quick-link-card">
+                <h3>⚡ API Reference</h3>
+                <p>REST API endpoints for integrations</p>
+            </a>
+            <a href="#developers" class="quick-link-card">
+                <h3>🔧 For Developers</h3>
+                <p>Build on PumpLeague, get API access</p>
+            </a>
+            <a href="#webhooks" class="quick-link-card">
+                <h3>🔔 Webhooks</h3>
+                <p>Real-time event notifications</p>
+            </a>
+        </div>
+
+        <!-- Overview Section -->
+        <section id="overview" class="doc-section">
+            <h2>🏛️ Overview</h2>
+            <p>
+                PumpLeague is an automated token competition protocol on Solana. Every 24 hours, tokens battle
+                based on their performance metrics, and the winners' holders receive SOL rewards directly to their
+                wallets.
+            </p>
+
+            <h3>How It Works</h3>
+            <ol>
+                <li><strong>Registration</strong> — Token creators register their tokens to enter the arena</li>
+                <li><strong>Battle</strong> — Tokens are scored on fees, holder count, volume, and price stability</li>
+                <li><strong>Victory</strong> — Top 3 tokens win, and their holders receive SOL airdrops proportional to
+                    holdings</li>
+            </ol>
+
+            <h3>Scoring Weights</h3>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Weight</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Claimed Fees</td>
+                        <td>30%</td>
+                        <td>SOL claimed from creator fees</td>
+                    </tr>
+                    <tr>
+                        <td>Holder Count</td>
+                        <td>25%</td>
+                        <td>Number of unique holders</td>
+                    </tr>
+                    <tr>
+                        <td>24h Volume</td>
+                        <td>20%</td>
+                        <td>Trading volume in last 24 hours</td>
+                    </tr>
+                    <tr>
+                        <td>Price Stability</td>
+                        <td>15%</td>
+                        <td>Lower volatility = higher score</td>
+                    </tr>
+                    <tr>
+                        <td>Growth Rate</td>
+                        <td>10%</td>
+                        <td>Holder and volume growth</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Fee Distribution</h3>
+            <ul>
+                <li><strong>85%</strong> → Distributed to token holders</li>
+                <li><strong>10%</strong> → Arena fee (protocol)</li>
+                <li><strong>5%</strong> → Next round prize pool</li>
+            </ul>
+        </section>
+
+        <!-- API Reference Section -->
+        <section id="api" class="doc-section">
+            <h2>⚡ API Reference</h2>
+            <p>
+                Access PumpLeague data programmatically. Public endpoints are available without authentication.
+                For higher rate limits and webhooks, apply for an API key.
+            </p>
+
+            <h3>Base URL</h3>
+            <pre><code>https://api.pumpleague.com</code></pre>
+
+            <h3>Public Endpoints</h3>
+
+            <div class="endpoint-card">
+                <span class="method get">GET</span>
+                <span class="path">/api/status</span>
+                <p class="desc">Protocol status and current configuration</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method get">GET</span>
+                <span class="path">/api/leaderboard</span>
+                <p class="desc">Current round token rankings</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method get">GET</span>
+                <span class="path">/api/rounds</span>
+                <p class="desc">Round history (add ?limit=10 for pagination)</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method get">GET</span>
+                <span class="path">/api/rounds/:id</span>
+                <p class="desc">Specific round details with payouts</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method get">GET</span>
+                <span class="path">/api/tokens</span>
+                <p class="desc">List all registered tokens</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method get">GET</span>
+                <span class="path">/api/hof</span>
+                <p class="desc">Hall of Fame — all-time champions</p>
+            </div>
+
+            <div class="endpoint-card">
+                <span class="method get">GET</span>
+                <span class="path">/api/stats</span>
+                <p class="desc">Aggregate protocol statistics</p>
+            </div>
+
+            <h3>Authentication</h3>
+            <p>For authenticated endpoints, include your API key in the header:</p>
+            <pre><code>curl -H "X-API-Key: api_key_your_key_here" \
+  https://api.pumpleague.com/api/status</code></pre>
+
+            <h3>Rate Limits</h3>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Rate Limit</th>
+                        <th>Access</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Public</td>
+                        <td>100/hour</td>
+                        <td>Read-only public endpoints</td>
+                    </tr>
+                    <tr>
+                        <td>Integration</td>
+                        <td>1000/hour</td>
+                        <td>Full API + webhooks</td>
+                    </tr>
+                    <tr>
+                        <td>Admin</td>
+                        <td>5000/hour</td>
+                        <td>All access + key management</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- For Developers Section -->
+        <section id="developers" class="doc-section">
+            <h2>🔧 For Developers</h2>
+            <p>
+                Want to build on PumpLeague? Follow these steps to get API access.
+            </p>
+
+            <h3>Step 1: Join the Waitlist</h3>
+            <p>Sign up as a <strong>Developer</strong> on our <a href="index.html#enlist"
+                    style="color: var(--gold);">waitlist</a>. Select "Developer" as your warrior class.</p>
+
+            <h3>Step 2: Get Approved</h3>
+            <p>Our team reviews developer applications. Once approved, you'll receive an API key via Twitter DM.</p>
+
+            <h3>Step 3: Start Building</h3>
+            <pre><code>// Example: Get current leaderboard
+const response = await fetch('https://api.pumpleague.com/api/leaderboard', {
+  headers: { 'X-API-Key': 'api_key_your_key' }
+});
+const leaderboard = await response.json();
+console.log(leaderboard);</code></pre>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Portfolio Tracker</strong> — Monitor your tokens' performance and earnings</li>
+                <li><strong>Leaderboard Bot</strong> — Post round results to Discord/Telegram</li>
+                <li><strong>Analytics Dashboard</strong> — Build custom visualizations</li>
+                <li><strong>Trading Signals</strong> — Use scoring data for trading decisions</li>
+            </ul>
+
+            <h3>GitHub Repository</h3>
+            <a href="https://github.com/RYthaGOD/PUMPLEAGUE" target="_blank" class="github-link">
+                ⭐ View on GitHub
+            </a>
+        </section>
+
+        <!-- Webhooks Section -->
+        <section id="webhooks" class="doc-section">
+            <h2>🔔 Webhooks</h2>
+            <p>
+                Receive real-time notifications when events occur. Requires an Integration tier API key.
+            </p>
+
+            <h3>Available Events</h3>
+            <table class="doc-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Trigger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>round.started</code></td>
+                        <td>New competition round begins</td>
+                    </tr>
+                    <tr>
+                        <td><code>round.completed</code></td>
+                        <td>Round finishes with payouts</td>
+                    </tr>
+                    <tr>
+                        <td><code>token.registered</code></td>
+                        <td>New token enters competition</td>
+                    </tr>
+                    <tr>
+                        <td><code>payout.sent</code></td>
+                        <td>SOL payment sent to holder</td>
+                    </tr>
+                    <tr>
+                        <td><code>fraud.detected</code></td>
+                        <td>Suspicious activity flagged</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Registering a Webhook</h3>
+            <pre><code>curl -X POST https://api.pumpleague.com/api/webhooks \
+  -H "X-API-Key: api_key_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-server.com/webhook",
+    "events": ["round.completed", "payout.sent"]
+  }'</code></pre>
+
+            <h3>Webhook Payload</h3>
+            <pre><code>{
+  "id": "evt_abc123",
+  "type": "round.completed",
+  "created": "2025-12-27T18:00:00Z",
+  "data": {
+    "round_id": "R20251227_1703689200",
+    "total_fees_claimed": 2.5,
+    "total_paid_out": 2.125,
+    "winner_count": 3
+  }
+}</code></pre>
+
+            <h3>Signature Verification</h3>
+            <p>All webhooks include an <code>X-Webhook-Signature</code> header. Verify it with HMAC-SHA256:</p>
+            <pre><code>const crypto = require('crypto');
+
+function verifyWebhook(payload, signature, secret) {
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected)
+  );
+}</code></pre>
+        </section>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 40px 0; color: var(--text-secondary);">
+            <p>Need help? Reach out on <a href="https://twitter.com/pumpleague" style="color: var(--gold);">Twitter</a>
+            </p>
+            <p style="margin-top: 10px; opacity: 0.7;">© MMXXIV PumpLeague. Gloria in Certamine.</p>
+        </footer>
+    </div>
+</body>
+
+</html>
