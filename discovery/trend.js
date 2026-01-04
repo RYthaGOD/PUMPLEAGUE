@@ -30,15 +30,37 @@ class TokenDiscovery {
         console.log(`🔍 Scanning for trending tokens... (Today: ${dailyCount}/${MAX_DAILY})`);
 
         try {
-            // 1. Search for "pump.fun" or latest Solana pairs on DexScreener
-            const dexscreenerApi = require('../external/api'); // Fallback for specialized search if needed, but we used dexscreener.js
-            const pairs = await dexscreenerApi.searchTokenPairs('pump.fun');
+            // Fix #48: Expanded discovery - search multiple sources
+            const dexscreenerApi = require('../external/api');
+
+            // Search multiple categories
+            const searchTerms = ['pump.fun', 'solana meme', 'sol'];
+            let allPairs = [];
+
+            for (const term of searchTerms) {
+                try {
+                    const pairs = await dexscreenerApi.searchTokenPairs(term);
+                    allPairs = allPairs.concat(pairs);
+                } catch (e) {
+                    console.log(`   ⚠️ Search for "${term}" failed: ${e.message}`);
+                }
+            }
+
+            // Remove duplicates by pair address
+            const seenPairs = new Set();
+            allPairs = allPairs.filter(p => {
+                if (seenPairs.has(p.pairAddress)) return false;
+                seenPairs.add(p.pairAddress);
+                return true;
+            });
 
             // 2. Filter for promising candidates
-            const candidates = pairs.filter(p => {
+            const candidates = allPairs.filter(p => {
                 const liq = parseFloat(p.liquidity?.usd || 0);
                 const vol = parseFloat(p.volume?.h24 || 0);
-                return liq > 2000 && vol > 5000; // Lowered threshold slightly for earlier discovery
+                const age = p.pairCreatedAt ? (Date.now() - p.pairCreatedAt) / (1000 * 60 * 60 * 24) : 999;
+                // Prefer newer tokens with good volume but not too new (>1 day old)
+                return liq > 2000 && vol > 5000 && age > 1 && age < 30;
             }).slice(0, 5);
 
             console.log(`   Found ${candidates.length} candidates after basic filtering.`);
@@ -70,9 +92,10 @@ class TokenDiscovery {
                         }
                     }
 
+                    // Fix #17: Mark auto-discovered tokens properly
                     store.registerToken(
                         mint,
-                        "COMMUNITY_AUTO_REGISTER",
+                        null, // No verified creator for auto-discovered tokens
                         name,
                         symbol
                     );

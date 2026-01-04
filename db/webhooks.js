@@ -74,14 +74,33 @@ function generateWebhookSecret() {
  * @returns {object} - { webhookId, url, events, secret }
  */
 function registerWebhook(db, { keyId, url, events, metadata = {} }) {
-    // Validate URL
-    if (!url || !url.startsWith('http')) {
-        throw new Error('Invalid webhook URL');
+    // Fix #47: Improved webhook URL validation
+    if (!url) {
+        throw new Error('Webhook URL is required');
     }
 
-    // In production, require HTTPS
-    if (process.env.NODE_ENV === 'production' && !url.startsWith('https://')) {
-        throw new Error('Webhook URL must use HTTPS in production');
+    // Parse URL properly
+    let parsedUrl;
+    try {
+        parsedUrl = new URL(url);
+    } catch (e) {
+        throw new Error('Invalid webhook URL format');
+    }
+
+    // Only allow http(s) protocols
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+        throw new Error('Webhook URL must use HTTP or HTTPS protocol');
+    }
+
+    // Block internal/localhost URLs in production
+    const blockedHosts = ['localhost', '127.0.0.1', '0.0.0.0', '::1', '169.254.169.254'];
+    if (process.env.NODE_ENV === 'production') {
+        if (blockedHosts.includes(parsedUrl.hostname) || parsedUrl.hostname.endsWith('.local')) {
+            throw new Error('Webhook URL cannot point to internal addresses in production');
+        }
+        if (!url.startsWith('https://')) {
+            throw new Error('Webhook URL must use HTTPS in production');
+        }
     }
 
     // Validate events

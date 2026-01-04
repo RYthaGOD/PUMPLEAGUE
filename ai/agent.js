@@ -4,7 +4,7 @@
  * The main decision-making engine that runs 24/7.
  */
 
-const deepseek = require('./gemini');
+const gemini = require('./gemini');
 const memory = require('./memory');
 const config = require('../config');
 const store = require('../db/store');
@@ -41,8 +41,12 @@ class PumpLeagueAgent {
 
     /**
      * Main decision loop (runs periodically)
+     * Fix #51: Added error boundary with escalation
      */
     async runDecisionLoop() {
+        let consecutiveErrors = 0;
+        const MAX_CONSECUTIVE_ERRORS = 5;
+
         // Every 30 minutes, check if there's anything to do
         setInterval(async () => {
             if (this.isEvaluating) {
@@ -53,8 +57,18 @@ class PumpLeagueAgent {
             try {
                 this.isEvaluating = true;
                 await this.evaluateState();
+                consecutiveErrors = 0; // Reset on success
             } catch (error) {
-                this.log(`❌ Loop error: ${error.message}`);
+                consecutiveErrors++;
+                this.log(`❌ Loop error (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}): ${error.message}`);
+
+                // Fix #51: Escalate if too many consecutive errors
+                if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+                    console.error(`🚨 AGENT ESCALATION: ${consecutiveErrors} consecutive errors in decision loop!`);
+                    console.error(`   Last error: ${error.message}`);
+                    console.error(`   Stack: ${error.stack}`);
+                    // Could add webhook/notification here in future
+                }
             } finally {
                 this.isEvaluating = false;
             }
@@ -64,6 +78,8 @@ class PumpLeagueAgent {
         try {
             this.isEvaluating = true;
             await this.evaluateState();
+        } catch (error) {
+            this.log(`❌ Initial evaluation failed: ${error.message}`);
         } finally {
             this.isEvaluating = false;
         }
@@ -106,7 +122,7 @@ class PumpLeagueAgent {
         const passiveHotTokens = tokens.filter(t => !t.is_active && t.volume_24h > 10000).slice(0, 3);
 
         // 1. Generate AI Commentary for winners
-        const commentary = await deepseek.generateRoundTweet(round, topTokens);
+        const commentary = await gemini.generateRoundTweet(round, topTokens);
 
         if (commentary) {
             this.log(`AI Commentary: ${commentary}`);
@@ -125,7 +141,7 @@ class PumpLeagueAgent {
                 Wallet to set as recipient: ${config.arenaWallet.publicKey}
                 Tone: Professional, bullish, and community-focused. Keep it under 240 chars.`;
 
-            const pitch = await deepseek.chat([{ role: "user", content: pitchPrompt }]);
+            const pitch = await gemini.chat([{ role: "user", content: pitchPrompt }]);
             if (pitch && (this.mode === 'FULL_AUTO')) {
                 this.log(`Pitched passive token: ${target.token_mint}`);
                 await postTweet(pitch);
@@ -158,7 +174,7 @@ class PumpLeagueAgent {
                     
                     Mention that the arena is active and protecting holders.`;
 
-                const summary = await deepseek.chat([{ role: "user", content: summaryPrompt }]);
+                const summary = await gemini.chat([{ role: "user", content: summaryPrompt }]);
 
                 if (summary) {
                     await postTweet(summary);
@@ -175,7 +191,7 @@ class PumpLeagueAgent {
     async adjudicateFraud(tokenData, holders, flags) {
         this.log(`Adjudicating fraud for ${tokenData.token_mint}...`);
 
-        const assessment = await deepseek.analyzeTokenFraud(tokenData, holders, flags);
+        const assessment = await gemini.analyzeTokenFraud(tokenData, holders, flags);
         if (assessment) {
             this.log(`AI Fraud Assessment: ${assessment}`);
 

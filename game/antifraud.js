@@ -62,7 +62,7 @@ async function detectFraud(tokenStats, holders) {
     }
 
     return {
-        isSuspicious: flags.length >= 2 || (aiAssessment && aiAssessment.includes('HIGH')),
+        isSuspicious: flags.length >= 2 || (aiAssessment ? aiAssessment.includes('HIGH') : false),
         flags,
         penaltyMultiplier,
         aiAssessment,
@@ -84,8 +84,8 @@ function shouldDisqualify(fraudResult) {
 /**
  * Generate fraud report for a token
  */
-function generateFraudReport(tokenMint, tokenStats, holders) {
-    const result = detectFraud(tokenStats, holders);
+async function generateFraudReport(tokenMint, tokenStats, holders) {
+    const result = await detectFraud(tokenStats, holders);
 
     return {
         tokenMint,

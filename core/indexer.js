@@ -89,8 +89,12 @@ async function indexAllHolders(tokenMint) {
         console.error(`Error indexing holders: ${error.message}`);
 
         // Fallback to getTokenLargestAccounts if full scan fails
-        console.log("  Falling back to largest accounts...");
-        return await getFallbackHolders(tokenMint);
+        // WARNING: This only returns top ~20 holders, not complete set
+        console.warn(`  ⚠️ [${tokenMint.slice(0, 8)}] Full holder scan failed, using fallback (limited to ~20 holders)`);
+        console.warn(`     This may result in incomplete payout distribution for this token.`);
+        const fallbackHolders = await getFallbackHolders(tokenMint);
+        // Mark these holders as from fallback for transparency
+        return fallbackHolders.map(h => ({ ...h, fromFallback: true }));
     }
 }
 
@@ -147,19 +151,19 @@ function analyzeHolderConcentration(holders) {
     const top3Balance = sorted.slice(0, 3).reduce((acc, h) => acc + h.balance, 0);
     const top3Percent = top3Balance / totalBalance;
 
-    // Gini coefficient (measure of inequality)
+    // Gini coefficient using sorted array formula - O(n log n) instead of O(n²)
+    // Formula: G = (2 * sum(i * x_i)) / (n * sum(x_i)) - (n+1)/n
     const n = holders.length;
-    let giniSum = 0;
+    let sumIX = 0;
     for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            giniSum += Math.abs(sorted[i].balance - sorted[j].balance);
-        }
+        // Sorted descending, so invert index for ascending order
+        sumIX += (n - i) * sorted[i].balance;
     }
-    const giniCoefficient = giniSum / (2 * n * totalBalance);
+    const giniCoefficient = (2 * sumIX) / (n * totalBalance) - (n + 1) / n;
 
     return {
         top3Percent,
-        giniCoefficient,
+        giniCoefficient: Math.max(0, Math.min(1, giniCoefficient)), // Clamp to [0, 1]
         holderCount: holders.length,
         totalBalance
     };

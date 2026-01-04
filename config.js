@@ -1,5 +1,59 @@
 require('dotenv').config();
 
+/**
+ * Fix #31: Validate required environment variables on startup
+ * Provides clear error messages for missing configuration
+ */
+function validateEnvironment() {
+    const warnings = [];
+    const errors = [];
+
+    // Required for live mode (warning if missing)
+    if (!process.env.SOLANA_RPC_URL) {
+        warnings.push('SOLANA_RPC_URL not set, using public endpoint (rate limited)');
+    }
+
+    if (!process.env.ARENA_WALLET_SECRET) {
+        warnings.push('ARENA_WALLET_SECRET not set, payouts will fail');
+    }
+
+    if (!process.env.PUMPPORTAL_API_KEY || process.env.PUMPPORTAL_API_KEY === 'YOUR_PUMPFUN_API_KEY') {
+        warnings.push('PUMPPORTAL_API_KEY not set, fee claiming will fail');
+    }
+
+    // Optional but log if enabled without keys
+    if (process.env.TWITTER_ENABLED === 'true') {
+        if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_ACCESS_TOKEN) {
+            errors.push('TWITTER_ENABLED=true but Twitter API keys are missing');
+        }
+    }
+
+    if (process.env.AI_ENABLED === 'true') {
+        if (!process.env.GEMINI_API_KEY) {
+            errors.push('AI_ENABLED=true but GEMINI_API_KEY is missing');
+        }
+    }
+
+    // Log warnings
+    warnings.forEach(w => console.warn(`⚠️  Config Warning: ${w}`));
+
+    // Throw on errors
+    if (errors.length > 0) {
+        errors.forEach(e => console.error(`❌ Config Error: ${e}`));
+        throw new Error('Environment validation failed. Fix config errors before starting.');
+    }
+
+    if (warnings.length === 0) {
+        console.log('✅ Environment validation passed');
+    }
+}
+
+// Run validation on module load (fix #31)
+if (process.env.NODE_ENV !== 'test') {
+    validateEnvironment();
+}
+
+
 module.exports = {
     // Solana Network
     solanaRpcUrl: process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com",

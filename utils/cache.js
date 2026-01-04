@@ -135,7 +135,18 @@ class SmartCache {
      * Start periodic cleanup
      */
     startCleanup() {
-        setInterval(() => this.cleanup(), 60 * 1000); // Every minute
+        this.cleanupInterval = setInterval(() => this.cleanup(), 60 * 1000); // Every minute
+        this.cleanupInterval.unref(); // Don't prevent process from exiting
+    }
+
+    /**
+     * Stop cleanup interval (for graceful shutdown)
+     */
+    stopCleanup() {
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+            this.cleanupInterval = null;
+        }
     }
 
     /**

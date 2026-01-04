@@ -1,5 +1,6 @@
 const config = require("../config");
 const store = require("../db/store");
+const websocket = require("../utils/websocket");
 
 /**
  * Calculate dynamic bounds from round data
@@ -60,9 +61,10 @@ function calculateScore(tokenStats, holders, bounds) {
         growthScore * weights.growth
     );
 
-    // Active Status Multiplier: Give it a bump if it's contributing fees
+    // Active Status Multiplier: Tokens actively contributing fees get a boost
+    // Note: This matches RULES.md specification for active partner bonus
     if (tokenStats.is_active) {
-        rawScore *= 1.5; // 50% boost for being an active partner
+        rawScore *= 2.0; // 2x boost for active fee contributors (per RULES.md)
     }
 
     return {
@@ -144,6 +146,17 @@ async function rankTokens(roundId) {
             token.penaltyMultiplier
         );
         token.rank = rank;
+    });
+
+    // Broadcast leaderboard update
+    websocket.broadcast('leaderboard.updated', {
+        roundId,
+        leaderboard: scoredTokens.map(t => ({
+            rank: t.rank,
+            tokenMint: t.token_mint,
+            score: t.score,
+            holderCount: t.holderCount
+        }))
     });
 
     return scoredTokens;

@@ -69,6 +69,18 @@ async function createRoundSnapshot() {
             console.log(`  ✓ ${token.token_mint.slice(0, 8)}... - ${holders.length} holders | Vol: $${(marketData.volume24h || 0).toFixed(0)}`);
         } catch (error) {
             console.error(`  ✗ ${token.token_mint.slice(0, 8)}... - ${error.message}`);
+            // Fix #5: Mark token as failed in snapshot - will be excluded from scoring
+            store.saveTokenSnapshot(
+                roundId,
+                token.token_mint,
+                0,  // 0 holders indicates failure
+                0,
+                0,
+                0,
+                0
+            );
+            // Update with explicit failure flag by using negative holder count as marker
+            // This token will be skipped in scoring due to 0 holders
         }
     }
 

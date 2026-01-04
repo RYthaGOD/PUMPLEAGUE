@@ -93,6 +93,11 @@ async function main() {
             handleWaitlist(args.slice(1));
             break;
 
+        // Fix #42: Retry failed payouts
+        case 'retry-payouts':
+            handleRetryPayouts(args[1]);
+            break;
+
         case 'help':
         default:
             showHelp();
@@ -745,6 +750,49 @@ function convertToCSV(data) {
     return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
 }
 
+// Fix #42: Retry failed payouts for a round
+async function handleRetryPayouts(roundId) {
+    if (!roundId) {
+        const latest = store.getLatestRound();
+        if (!latest) {
+            console.error('No rounds found.');
+            return;
+        }
+        roundId = latest.round_id;
+    }
+
+    console.log(`\n🔄 Checking for failed payouts in round ${roundId}...`);
+
+    try {
+        // Get payouts for the round
+        const payouts = store.getPayoutsForRound(roundId);
+
+        // Find failed ones (no tx_signature or status is 'failed')
+        const failed = payouts.filter(p => !p.tx_signature || p.status === 'failed');
+
+        if (failed.length === 0) {
+            console.log('✅ No failed payouts found. All payouts completed successfully.');
+            return;
+        }
+
+        console.log(`   Found ${failed.length} failed/pending payouts`);
+        console.log('─'.repeat(60));
+
+        // List failed payouts
+        failed.forEach((p, i) => {
+            console.log(`   ${i + 1}. ${p.holder_address.slice(0, 12)}... → ${p.amount_sol.toFixed(6)} SOL`);
+        });
+
+        console.log('\n⚠️  To actually retry payouts, run the main process with:');
+        console.log(`   RESUME_INCOMPLETE=true npm start`);
+        console.log('\n   The round recovery system will automatically retry failed payouts.');
+        console.log('   See docs/RECOVERY.md for more information.\n');
+
+    } catch (error) {
+        console.error(`❌ Failed: ${error.message}`);
+    }
+}
+
 // ============ WAITLIST MANAGEMENT ============
 
 function handleWaitlist(params) {
@@ -1006,55 +1054,93 @@ async function handleTestIntegration(apiKey) {
     console.log('✅ Integration test complete!\n');
 }
 
+// Fix #41: Complete CLI help documentation
 function showHelp() {
+    const version = require('./package.json')?.version || '1.0.0';
+
     console.log(`
-🏆 PUMPLEAGUE CLI
+🏆 PUMPLEAGUE CLI v${version}
 
 Usage: node cli.js <command> [options]
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 TOKEN MANAGEMENT:
-  register <mint> [creator] [name] [symbol]   Register a token
-  deactivate <mint>                           Remove token from competition
+  register <mint> [creator] [name] [symbol]   Register a token for competition
+                                              - Auto-fetches metadata if not provided
+  deactivate <mint>                           Remove token from future rounds
   tokens, list                                List all registered tokens
   batch-register <csv_file>                   Register multiple tokens from CSV
-  
+                                              CSV format: mint,creator,name,symbol
+   
 STATUS & HISTORY:
-  status                                      Show current status
-  history [limit]                             Show round history
-  round [roundId]                             Show round details
-  hof, hall-of-fame [limit]                   Show Hall of Fame
+  status                                      Show current protocol status
+  history [limit]                             Show round history (default: 10)
+  round [roundId]                             Show detailed round info
+  hof, hall-of-fame [limit]                   Show Hall of Fame leaderboard
   token-history <mint>                        Show token's competition history
-  
+   
 PAYOUTS:
   proof [roundId]                             Show payout proof with explorer links
   export [roundId]                            Export round data as JSON
   batch-export <roundId> [format]             Export round (json|csv)
+  retry-payouts <roundId>                     Retry failed payouts for a round
 
 API KEY MANAGEMENT:
   api-key create <name> [tier]                Create new API key
+                                              Tiers: public, integration, admin
   api-key list                                List all API keys
   api-key stats <key_id>                      Show usage statistics
   api-key revoke <key_id>                     Revoke an API key
 
 WEBHOOK MANAGEMENT:
-  webhook add <url> <events...>               Register a webhook
-  webhook list [key_id]                       List webhooks
+  webhook add <url> <events...>               Register a webhook endpoint
+                                              Events: round.started, round.completed,
+                                                      round.scored, token.registered,
+                                                      leaderboard.updated
+  webhook list [key_id]                       List registered webhooks
   webhook test <webhook_id> [key_id]          Test webhook delivery
   webhook logs <webhook_id>                   View delivery logs
   webhook remove <webhook_id> [key_id]        Remove webhook
 
-INTEGRATION:
-  test-integration <api_key>                  Test API integration
-  
-HELP:
-  help                                        Show this help
+WAITLIST MANAGEMENT:
+  waitlist list                               Show pending developer applications
+  waitlist approve <id> [tier]                Approve and generate API key
+  waitlist reject <id> [reason]               Reject with optional reason
+  waitlist approved                           Show approved developers
+
+INTEGRATION & TESTING:
+  test-integration <api_key>                  Test full API integration
+   
+ENVIRONMENT VARIABLES:
+  SOLANA_RPC_URL          Solana RPC endpoint (defaults to public)
+  ARENA_WALLET_SECRET     Arena wallet private key (required for payouts)
+  PUMPPORTAL_API_KEY      PumpFun API key for fee claiming
+  ROUND_DURATION_HOURS    Override default 24h round duration
+  LOG_LEVEL               Set logging level (DEBUG|INFO|WARN|ERROR)
 
 EXAMPLES:
+  # Register a new token
   node cli.js register 7xKXtg...abc creator123 "MyToken" "MTK"
-  node cli.js api-key create "My Bot" integration
-  node cli.js webhook add https://mybot.com/hook round.completed
+  
+  # Create an API key for a bot
+  node cli.js api-key create "My Trading Bot" integration
+  
+  # Set up a webhook for round completions
+  node cli.js webhook add https://mybot.com/hook round.completed round.scored
+  
+  # Test API integration
   node cli.js test-integration api_key_abc123...
-  `);
+  
+  # Export round data to CSV
+  node cli.js batch-export R20260104_123456 csv
+  
+  # Retry failed payouts
+  node cli.js retry-payouts R20260104_123456
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+For more information, visit: https://docs.pumpleague.io
+   `);
 }
 
 main().catch(console.error);

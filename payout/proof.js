@@ -1,12 +1,49 @@
 const store = require("../db/store");
 
-const SOLSCAN_BASE = "https://solscan.io/tx";
+// Fix #49: Support multiple block explorers
+const EXPLORERS = {
+    solscan: {
+        name: 'Solscan',
+        txUrl: (sig) => `https://solscan.io/tx/${sig}`,
+        addressUrl: (addr) => `https://solscan.io/address/${addr}`,
+        tokenUrl: (mint) => `https://solscan.io/token/${mint}`
+    },
+    solana: {
+        name: 'Solana Explorer',
+        txUrl: (sig) => `https://explorer.solana.com/tx/${sig}`,
+        addressUrl: (addr) => `https://explorer.solana.com/address/${addr}`,
+        tokenUrl: (mint) => `https://explorer.solana.com/address/${mint}`
+    },
+    solanafm: {
+        name: 'SolanaFM',
+        txUrl: (sig) => `https://solana.fm/tx/${sig}`,
+        addressUrl: (addr) => `https://solana.fm/address/${addr}`,
+        tokenUrl: (mint) => `https://solana.fm/address/${mint}`
+    }
+};
+
+const DEFAULT_EXPLORER = process.env.BLOCK_EXPLORER || 'solscan';
+
+function getExplorer(name = DEFAULT_EXPLORER) {
+    return EXPLORERS[name] || EXPLORERS.solscan;
+}
+
+const SOLSCAN_BASE = "https://solscan.io/tx"; // Legacy fallback
+
+/**
+ * Redact address for privacy (keep first 4 and last 4 chars)
+ */
+function redactAddress(address) {
+    if (!address || address.length < 12) return '***';
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
 
 /**
  * Generate proof-of-payout for a round
  * Returns verifiable on-chain links
+ * Fix #26: Added redactAddresses option for privacy
  */
-function generatePayoutProof(roundId) {
+function generatePayoutProof(roundId, options = { redactAddresses: false }) {
     const payouts = store.getPayoutsForRound(roundId);
 
     return {
@@ -14,7 +51,7 @@ function generatePayoutProof(roundId) {
         count: payouts.length,
         totalSOL: payouts.reduce((acc, p) => acc + p.amount_sol, 0),
         payouts: payouts.map(p => ({
-            holder: p.holder_address,
+            holder: options.redactAddresses ? redactAddress(p.holder_address) : p.holder_address,
             holderShort: p.holder_address.slice(0, 8) + '...',
             amount: `${p.amount_sol.toFixed(6)} SOL`,
             tx: p.tx_signature,

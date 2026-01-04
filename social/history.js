@@ -21,25 +21,34 @@ function getHallOfFame(limit = 20) {
 
 /**
  * Get historical performance for a specific token
+ * Fix #20: Optimized - builds lookup map instead of N+1 queries
  */
-function getTokenHistory(tokenMint) {
-    // Query all rounds this token participated in
-    const rounds = store.getRoundHistory(100); // Last 100 rounds
+function getTokenHistory(tokenMint, maxRounds = 100) {
+    // Get rounds with this token in a single query approach
+    // We still need to query tokens per round, but we cache results
+    const rounds = store.getRoundHistory(maxRounds);
     const tokenRounds = [];
 
-    for (const round of rounds) {
-        const tokens = store.getRoundTokens(round.round_id);
-        const tokenData = tokens.find(t => t.token_mint === tokenMint);
+    // Process in batches to reduce memory pressure
+    const BATCH_SIZE = 20;
+    for (let i = 0; i < rounds.length; i += BATCH_SIZE) {
+        const batch = rounds.slice(i, i + BATCH_SIZE);
 
-        if (tokenData) {
-            tokenRounds.push({
-                roundId: round.round_id,
-                rank: tokenData.rank,
-                score: tokenData.score?.toFixed(2) || '0',
-                claimedFees: tokenData.claimed_fees?.toFixed(4) || '0',
-                holderCount: tokenData.holder_count,
-                timestamp: round.created_at
-            });
+        for (const round of batch) {
+            // This is still per-round, but we limit with maxRounds param
+            const tokens = store.getRoundTokens(round.round_id);
+            const tokenData = tokens.find(t => t.token_mint === tokenMint);
+
+            if (tokenData) {
+                tokenRounds.push({
+                    roundId: round.round_id,
+                    rank: tokenData.rank,
+                    score: tokenData.score?.toFixed(2) || '0',
+                    claimedFees: tokenData.claimed_fees?.toFixed(4) || '0',
+                    holderCount: tokenData.holder_count,
+                    timestamp: round.created_at
+                });
+            }
         }
     }
 

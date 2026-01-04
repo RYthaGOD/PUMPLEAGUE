@@ -1,10 +1,35 @@
 const { Connection } = require("@solana/web3.js");
 const config = require("../config");
+const { run, queryOne } = require("../db/schema");
 
 const connection = new Connection(config.solanaRpcUrl, "confirmed");
 
-// Mutable emergency stop (can be set at runtime)
+// Fix #44: Load emergency stop from database if persisted
 let EMERGENCY_STOP = config.safetyLimits.emergencyStop;
+
+function loadEmergencyStopState() {
+    try {
+        const state = queryOne('SELECT value FROM system_state WHERE key = ?', ['emergency_stop']);
+        if (state?.value === 'true') {
+            EMERGENCY_STOP = true;
+            console.warn('⚠️  Emergency stop was active - restoring state');
+        }
+    } catch (e) {
+        // Table might not exist yet, that's ok
+    }
+}
+
+function saveEmergencyStopState(active) {
+    try {
+        run(`INSERT OR REPLACE INTO system_state (key, value, updated_at) VALUES (?, ?, datetime('now'))`,
+            ['emergency_stop', active ? 'true' : 'false']);
+    } catch (e) {
+        console.error('Failed to persist emergency stop state:', e.message);
+    }
+}
+
+// Try to load state on module init
+loadEmergencyStopState();
 
 /**
  * Check all safety guards before a payout
@@ -90,18 +115,22 @@ class SafetyError extends Error {
 
 /**
  * Activate emergency stop
+ * Fix #44: Persists to database
  */
 function activateEmergencyStop(reason) {
     EMERGENCY_STOP = true;
+    saveEmergencyStopState(true);
     console.error(`🚨 EMERGENCY STOP ACTIVATED: ${reason}`);
     return true;
 }
 
 /**
  * Deactivate emergency stop
+ * Fix #44: Persists to database
  */
 function deactivateEmergencyStop() {
     EMERGENCY_STOP = false;
+    saveEmergencyStopState(false);
     console.log(`✅ Emergency stop deactivated`);
     return true;
 }

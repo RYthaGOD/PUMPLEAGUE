@@ -8,6 +8,7 @@ const apiKeys = require('../db/api-keys');
 
 // In-memory store for rate limiting (for production, use Redis)
 const rateLimitStore = new Map();
+const MAX_RATE_LIMIT_ENTRIES = 10000; // Prevent unbounded growth
 
 /**
  * Clean up old entries from rate limit store
@@ -25,10 +26,18 @@ function cleanupRateLimitStore() {
             rateLimitStore.delete(key);
         }
     }
+
+    // If still too large, evict oldest entries (LRU)
+    if (rateLimitStore.size > MAX_RATE_LIMIT_ENTRIES) {
+        const entriesToRemove = rateLimitStore.size - MAX_RATE_LIMIT_ENTRIES;
+        const keys = Array.from(rateLimitStore.keys()).slice(0, entriesToRemove);
+        keys.forEach(key => rateLimitStore.delete(key));
+    }
 }
 
-// Run cleanup every 30 seconds
-setInterval(cleanupRateLimitStore, 30000);
+// Run cleanup every 30 seconds (store reference for potential cleanup)
+const cleanupInterval = setInterval(cleanupRateLimitStore, 30000);
+cleanupInterval.unref(); // Don't prevent process from exiting
 
 /**
  * Rate limiting middleware

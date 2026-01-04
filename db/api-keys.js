@@ -184,12 +184,14 @@ function getUsageStats(db, keyId, hours = 24) {
     );
     const total = totalResult[0]?.values[0]?.[0] || 0;
 
-    // Recent requests (last N hours)
+    // Recent requests (last N hours) - using parameterized modifier
+    // Note: SQLite doesn't support parameterized interval modifiers, so we validate hours is a safe integer
+    const safeHours = Math.max(1, Math.min(8760, Math.floor(Number(hours) || 24))); // Clamp to 1-8760 hours (1 year max)
     const recentResult = db.exec(
         `SELECT COUNT(*) as recent 
          FROM api_key_usage 
-         WHERE key_id = ? AND timestamp > datetime('now', '-${hours} hours')`,
-        [keyId]
+         WHERE key_id = ? AND timestamp > datetime('now', '-' || ? || ' hours')`,
+        [keyId, safeHours]
     );
     const recent = recentResult[0]?.values[0]?.[0] || 0;
 

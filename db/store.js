@@ -1,10 +1,28 @@
 const { query, queryOne, run, ensureInit } = require('./schema');
+const config = require('../config');
 
 // Ensure database is initialized before any operations
 let initialized = false;
 async function init() {
   if (!initialized) {
     await ensureInit();
+
+    // Fix #37: Load scoring weights from DB
+    try {
+      const rows = query('SELECT * FROM scoring_config');
+      if (rows.length > 0) {
+        rows.forEach(r => {
+          if (config.scoringWeights.hasOwnProperty(r.metric)) {
+            config.scoringWeights[r.metric] = r.weight;
+          }
+        });
+        console.log('⚖️  Loaded scoring weights from database');
+      }
+    } catch (e) {
+      // Table might not exist yet during first run of migrations
+      console.warn('ℹ️  Scoring config table not found or empty, using defaults');
+    }
+
     initialized = true;
   }
 }
@@ -102,11 +120,27 @@ function saveHolderSnapshot(roundId, tokenMint, holderAddress, tokenAccount, bal
 }
 
 function saveHoldersBatch(roundId, tokenMint, holders) {
-  for (const h of holders) {
+  // Wrap in transaction for atomicity (#2 fix)
+  run('BEGIN TRANSACTION');
+  try {
+    for (const h of holders) {
+      run(`
+        INSERT OR REPLACE INTO round_holders (round_id, token_mint, holder_address, token_account, balance)
+        VALUES (?, ?, ?, ?, ?)
+      `, [roundId, tokenMint, h.address, h.tokenAccount || null, h.balance]);
+    }
+
+    // Fix #53: Sync holder_count in round_tokens with actual count
     run(`
-      INSERT OR REPLACE INTO round_holders (round_id, token_mint, holder_address, token_account, balance)
-      VALUES (?, ?, ?, ?, ?)
-    `, [roundId, tokenMint, h.address, h.tokenAccount || null, h.balance]);
+      UPDATE round_tokens 
+      SET holder_count = ?
+      WHERE round_id = ? AND token_mint = ?
+    `, [holders.length, roundId, tokenMint]);
+
+    run('COMMIT');
+  } catch (error) {
+    run('ROLLBACK');
+    throw error;
   }
 }
 
@@ -167,7 +201,14 @@ function updateHallOfFame(tokenMint, rank, feesEarned, score, roundId) {
     const wins = rank === 1 ? existing.total_wins + 1 : existing.total_wins;
     const top3 = rank <= 3 ? existing.total_top3 + 1 : existing.total_top3;
     const totalFees = existing.total_fees_earned + feesEarned;
-    const avgScore = (existing.avg_score * existing.total_top3 + score) / (existing.total_top3 + 1);
+
+    // Fix #21: Handle edge case where total_top3 was 0
+    let avgScore;
+    if (existing.total_top3 === 0) {
+      avgScore = score; // First top3 finish, score is the average
+    } else {
+      avgScore = (existing.avg_score * existing.total_top3 + score) / (existing.total_top3 + 1);
+    }
 
     run(`
       UPDATE hall_of_fame 
@@ -199,12 +240,18 @@ function generateRoundId() {
   return `R${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${Date.now()}`;
 }
 
-function getRoundHistory(limit = 10) {
+// Fix #54: Support offset pagination
+function getRoundHistory(limit = 10, offset = 0) {
   return query(`
     SELECT * FROM rounds 
     ORDER BY created_at DESC 
-    LIMIT ?
-  `, [limit]);
+    LIMIT ? OFFSET ?
+  `, [limit, offset]);
+}
+
+function getRoundCount() {
+  const result = queryOne('SELECT COUNT(*) as count FROM rounds');
+  return result?.count || 0;
 }
 
 module.exports = {
@@ -241,5 +288,6 @@ module.exports = {
   getHallOfFame,
   // Utilities
   generateRoundId,
-  getRoundHistory
+  getRoundHistory,
+  getRoundCount
 };

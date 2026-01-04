@@ -149,9 +149,12 @@ async function executePayouts(roundId, topTokens, options = { dryRun: false }) {
 }
 
 /**
- * Send a payout transaction
+ * Send a payout transaction with proper blockhash management and verification
  */
 async function sendPayout(arenaWallet, recipientAddress, lamports) {
+    // Get fresh blockhash with expiry info
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+
     const tx = new Transaction().add(
         SystemProgram.transfer({
             fromPubkey: arenaWallet.publicKey,
@@ -160,10 +163,50 @@ async function sendPayout(arenaWallet, recipientAddress, lamports) {
         })
     );
 
-    const sig = await sendAndConfirmTransaction(connection, tx, [arenaWallet], {
-        commitment: 'confirmed',
-        maxRetries: 3
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = arenaWallet.publicKey;
+
+    // Sign the transaction
+    tx.sign(arenaWallet);
+
+    // Simulate first to catch errors before sending
+    const simulation = await connection.simulateTransaction(tx);
+    if (simulation.value.err) {
+        throw new Error(`Transaction simulation failed: ${JSON.stringify(simulation.value.err)}`);
+    }
+
+    // Send raw transaction
+    const rawTransaction = tx.serialize();
+    const sig = await connection.sendRawTransaction(rawTransaction, {
+        skipPreflight: false,
+        preflightCommitment: 'confirmed',
+        maxRetries: 5
     });
+
+    // Confirm with blockhash expiry check
+    const confirmation = await connection.confirmTransaction({
+        signature: sig,
+        blockhash: blockhash,
+        lastValidBlockHeight: lastValidBlockHeight
+    }, 'confirmed');
+
+    if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+    }
+
+    // Verify transaction actually landed by fetching it
+    const txResult = await connection.getTransaction(sig, {
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 0
+    });
+
+    if (!txResult) {
+        throw new Error(`Transaction ${sig} not found after confirmation`);
+    }
+
+    if (txResult.meta?.err) {
+        throw new Error(`Transaction failed on-chain: ${JSON.stringify(txResult.meta.err)}`);
+    }
 
     return sig;
 }

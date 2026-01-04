@@ -93,9 +93,20 @@ async function postTweet(text, options = { maxRetries: 3 }) {
         } catch (error) {
             // Handle rate limit (429)
             if (error.code === 429 || error.rateLimit) {
-                const resetTime = error.rateLimit?.reset
-                    ? error.rateLimit.reset * 1000
-                    : Date.now() + 15 * 60 * 1000; // Default 15 min
+                // Fix #24: Handle both seconds and milliseconds formats
+                let resetTime;
+                if (error.rateLimit?.reset) {
+                    const resetValue = error.rateLimit.reset;
+                    // If value is small (< year 2000 in seconds), it's seconds
+                    // If value is large (> year 2000 in ms), it's already milliseconds
+                    if (resetValue < 946684800000) { // Year 2000 in ms
+                        resetTime = resetValue * 1000; // Convert seconds to ms
+                    } else {
+                        resetTime = resetValue; // Already in milliseconds
+                    }
+                } else {
+                    resetTime = Date.now() + 15 * 60 * 1000; // Default 15 min
+                }
 
                 rateLimitResetTime = resetTime;
                 const waitSec = Math.ceil((resetTime - Date.now()) / 1000);

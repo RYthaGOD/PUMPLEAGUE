@@ -125,10 +125,18 @@ async function initDatabase() {
   // Run schema
   db.run(SCHEMA_SQL);
 
+  // Fix #33: Run migrations
+  try {
+    const { runMigrations } = require('./migrate');
+    runMigrations(db);
+  } catch (e) {
+    console.error('❌ Migration failed:', e);
+  }
+
   // Migration: Add is_active to round_tokens if not exists
   try {
     db.run("ALTER TABLE round_tokens ADD COLUMN is_active INTEGER DEFAULT 0;");
-    console.log("🛠️ Mirgrated: Added is_active to round_tokens");
+    // console.log("🛠️ Mirgrated: Added is_active to round_tokens");
   } catch (e) {
     // Column likely already exists
   }
@@ -191,11 +199,25 @@ function queryOne(sql, params = []) {
 
 /**
  * Helper: Run a statement (INSERT/UPDATE/DELETE)
+ * @param {boolean} deferSave - If true, don't immediately save to disk (for batch operations)
  */
-function run(sql, params = []) {
+function run(sql, params = [], deferSave = false) {
   getDb().run(sql, params);
-  saveDatabase();
+  if (!deferSave) {
+    saveDatabase();
+  }
   return { changes: getDb().getRowsModified() };
+}
+
+/**
+ * Run multiple statements in a batch, saving only once at the end
+ */
+function runBatch(statements) {
+  for (const { sql, params } of statements) {
+    getDb().run(sql, params || []);
+  }
+  saveDatabase();
+  return { count: statements.length };
 }
 
 // Auto-initialize on first require

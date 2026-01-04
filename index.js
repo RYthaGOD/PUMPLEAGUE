@@ -25,13 +25,38 @@ const { getSafetyStatus } = require("./safety/guards");
 const { getRoundState } = require("./safety/idempotency");
 const { Keypair, PublicKey, Connection } = require("@solana/web3.js");
 const agent = require("./ai/agent");
+// Fix #15 & #29: Webhook integration
+const { dispatchEvent, startRetryWorker } = require("./utils/webhook-delivery");
 
 // Parse command line arguments
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
 const SINGLE_ROUND = args.includes('--single');
 
+// Keep track of the current round
+let currentRound = null;
+
+// Mutex lock for round execution (#12 fix)
+let roundMutex = Promise.resolve();
 let isRoundRunning = false;
+
+/**
+ * Acquire mutex lock for round execution
+ * Returns a release function that must be called when done
+ */
+async function acquireRoundLock() {
+    let releaseFn;
+    const lockPromise = new Promise(resolve => {
+        releaseFn = resolve;
+    });
+
+    // Wait for previous lock holder to finish
+    const previousMutex = roundMutex;
+    roundMutex = lockPromise;
+    await previousMutex;
+
+    return releaseFn;
+}
 
 /**
  * Check for and resume any incomplete rounds
@@ -119,6 +144,9 @@ async function runRound() {
         console.log(`   Mode: ${DRY_RUN ? '🧪 DRY RUN' : '💰 LIVE'}`);
         console.log(`${'═'.repeat(60)}\n`);
 
+        // Fix #15: Dispatch round.started webhook event
+        await dispatchEvent('round.started', { mode: DRY_RUN ? 'dry_run' : 'live', timestamp: new Date().toISOString() });
+
         // Check safety status
         const safety = getSafetyStatus();
         if (safety.emergencyStop) {
@@ -169,12 +197,25 @@ async function runRound() {
             console.error(`⚠️ Could not check arena balance: ${error.message}`);
         }
 
+        const websocket = require("./utils/websocket");
+
+        // ... (imports)
+
+        // ...
+
         // STEP 1: Create round snapshot
         console.log(`\n📸 STEP 1: Creating round snapshot...`);
         const snapshot = await createRoundSnapshot();
         console.log(`   Round ID: ${snapshot.roundId}`);
         console.log(`   Slot: ${snapshot.slot}`);
         console.log(`   Tokens: ${snapshot.tokenCount}`);
+
+        // Broadcast round start
+        websocket.broadcast('round.started', {
+            roundId: snapshot.roundId,
+            tokenCount: snapshot.tokenCount,
+            timestamp: Date.now()
+        });
 
         if (snapshot.tokenCount === 0) {
             console.log('\n⚠️ No tokens registered. Use CLI to register tokens first.');
@@ -226,6 +267,25 @@ async function runRound() {
         console.log(`🎉 ROUND ${snapshot.roundId} COMPLETE!`);
         console.log(`${'═'.repeat(60)}\n`);
 
+        // Fix #15: Dispatch round.completed webhook event
+        await dispatchEvent('round.completed', {
+            roundId: snapshot.roundId,
+            tokenCount: snapshot.tokenCount,
+            totalFees,
+            payoutCount: payoutResult.txCount,
+            timestamp: new Date().toISOString()
+        });
+
+        // Fix #39: Broadcast round completion
+        websocket.broadcast('round.completed', {
+            roundId: snapshot.roundId,
+            leaderboard: ranked.slice(0, config.topN),
+            stats: {
+                totalFees,
+                payoutCount: payoutResult.txCount
+            }
+        });
+
         return {
             roundId: snapshot.roundId,
             tokenCount: snapshot.tokenCount,
@@ -252,6 +312,9 @@ async function main() {
 ║         Automated Token Competition Protocol              ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
+
+    // Fix #29: Start webhook retry worker
+    startRetryWorker();
 
     // Initialize database
     console.log('📦 Initializing database...');
@@ -309,18 +372,77 @@ async function main() {
         // Run immediately, then schedule
         await runRound();
 
-        // Schedule recurring rounds
-        const intervalMs = config.roundDurationHours * 60 * 60 * 1000;
-        console.log(`\n⏰ Next round scheduled in ${config.roundDurationHours} hours`);
-        setInterval(runRound, intervalMs);
+        // Fix #43: Support runtime round timer adjustment
+        let currentIntervalMs = config.roundDurationHours * 60 * 60 * 1000;
+        let roundTimer = null;
+
+        function scheduleNextRound() {
+            // Check for runtime override (env or db could be checked here)
+            const overrideHours = parseFloat(process.env.ROUND_DURATION_HOURS);
+            if (overrideHours && overrideHours > 0) {
+                currentIntervalMs = overrideHours * 60 * 60 * 1000;
+            }
+
+            console.log(`\n⏰ Next round scheduled in ${currentIntervalMs / 3600000} hours`);
+            roundTimer = setTimeout(async () => {
+                await runRound();
+                scheduleNextRound(); // Reschedule so we can pick up changes
+            }, currentIntervalMs);
+            roundTimer.unref(); // Don't keep process alive just for this
+        }
+
+        scheduleNextRound();
     }
 }
 
-// Handle graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\n\n👋 Shutting down PumpLeague...');
+// Fix #35: Improved graceful shutdown handler
+let isShuttingDown = false;
+const cleanupCallbacks = [];
+
+function registerCleanup(callback) {
+    cleanupCallbacks.push(callback);
+}
+
+async function gracefulShutdown(signal) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
+    console.log(`\n\n👋 Received ${signal}. Shutting down PumpLeague gracefully...`);
+
+    // Wait for current round to complete if running
+    if (isRoundRunning) {
+        console.log('   ⏳ Waiting for current round to complete...');
+        let waitCount = 0;
+        while (isRoundRunning && waitCount < 60) { // Max 60 seconds wait
+            await new Promise(r => setTimeout(r, 1000));
+            waitCount++;
+        }
+    }
+
+    // Run cleanup callbacks
+    for (const cleanup of cleanupCallbacks) {
+        try {
+            await cleanup();
+        } catch (e) {
+            console.error('   Cleanup error:', e.message);
+        }
+    }
+
+    // Save database
+    try {
+        const { saveDatabase } = require('./db/schema');
+        saveDatabase();
+        console.log('   ✅ Database saved');
+    } catch (e) {
+        console.error('   ❌ Database save failed:', e.message);
+    }
+
+    console.log('   👋 Goodbye!\n');
     process.exit(0);
-});
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Run
 main().catch(error => {
@@ -330,5 +452,6 @@ main().catch(error => {
 
 module.exports = {
     runRound,
-    resumeIncompleteRounds
+    resumeIncompleteRounds,
+    registerCleanup
 };
